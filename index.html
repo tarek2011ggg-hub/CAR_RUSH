@@ -2,820 +2,142 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>HIGHWAY RUSH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مشغل الصوت والتحكم</title>
   <style>
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07111f;color:#fff;font-family:Arial,sans-serif}
-    body{touch-action:none}
-    button{font:inherit;color:inherit;border:0;cursor:pointer}
-    #app{position:relative;width:100%;height:100%;overflow:hidden;background: radial-gradient(circle at 20% 10%,rgba(0,180,255,.12),transparent 32%), radial-gradient(circle at 80% 75%,rgba(255,60,120,.10),transparent 30%), #07111f}
-    canvas{position:absolute;inset:0;width:100%;height:100%}
-    
-    .screen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}
-    .hidden{display:none!important}
-    
-    .panel{
-      width:min(94vw,520px);padding:26px 20px 22px;border:1px solid rgba(255,255,255,.11);
-      border-radius:28px;background:rgba(4,10,20,.82);backdrop-filter:blur(16px);
-      box-shadow:0 18px 70px rgba(0,0,0,.45)
-    }
-    .logo{font-size:clamp(40px,12vw,74px);font-weight:1000;letter-spacing:-2px;text-align:center;line-height:.9}
-    .logo span{display:block;font-size:.26em;letter-spacing:4px;opacity:.65;margin-top:10px}
-    .subtitle{text-align:center;color:#b9c8d9;margin:18px 0 22px;line-height:1.7}
-    
-    .primary{
-      width:100%;padding:16px 18px;border-radius:18px;font-size:20px;font-weight:900;
-      background:linear-gradient(135deg,#18d67b,#00a6ff);box-shadow:0 12px 28px rgba(0,180,255,.22)
-    }
-    .secondary{
-      width:100%;padding:13px 16px;border-radius:16px;font-size:17px;font-weight:800;
-      background:rgba(255,255,255,.08);margin-top:11px
-    }
-    
-    .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    .mini-card{padding:15px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
-    .mini-card b{display:block;font-size:22px;margin-bottom:6px}
-    .mini-card span{color:#aab7c6;font-size:13px;line-height:1.5}
-    
-    .topbar{
-      position:absolute;z-index:10;top:max(12px,env(safe-area-inset-top));left:10px;right:10px;
-      display:flex;align-items:center;gap:8px;justify-content:space-between;pointer-events:none
-    }
-    .hud{display:flex;gap:7px;flex-wrap:wrap}
-    .badge{
-      min-width:80px;padding:9px 11px;border-radius:15px;background:rgba(4,10,20,.72);
-      border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(12px);text-align:center
-    }
-    .badge small{display:block;color:#8ea0b5;font-size:10px;margin-bottom:2px}
-    .badge strong{font-size:17px}
-    
-    .icon-btn{
-      pointer-events:auto;width:46px;height:46px;border-radius:15px;background:rgba(4,10,20,.72);
-      border:1px solid rgba(255,255,255,.10);backdrop-filter:blur(12px);font-size:21px
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f2f5;
+      margin: 0;
     }
 
-    /* تعكيس ترتيب عناصر التحكم لتكون الحركة يميناً والليزر يساراً */
-    .controls{
-      position:absolute;z-index:12;left:12px;right:12px;bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));
-      display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none;
-      flex-direction: row-reverse; /* عكس أماكن التحكم بالكامل */
-    }
-    .control-group{display:flex;gap:10px;pointer-events:auto}
-    .ctl{
-      width:68px;height:68px;border-radius:22px;background:rgba(4,10,20,.78);
-      border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 30px rgba(0,0,0,.28);
-      font-size:29px;font-weight:900;user-select:none
-    }
-    .ctl:active{transform:scale(.94)}
-    .fire{
-      width:82px;height:68px;border-radius:22px;background:linear-gradient(135deg,#ff486a,#ff8b31);
-      font-size:18px;pointer-events:auto
+    .player-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 320px;
     }
 
-    .shop-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
-    .tab{padding:11px 8px;border-radius:14px;background:rgba(255,255,255,.05);font-weight:900}
-    .tab.active{background:rgba(0,170,255,.18);border:1px solid rgba(0,170,255,.35)}
-    .items{display:grid;gap:10px;max-height:46vh;overflow:auto;padding-right:2px}
-    .item{
-      display:grid;grid-template-columns:62px 1fr auto;align-items:center;gap:12px;
-      padding:12px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)
+    /* حاوية الأزرار مرتبة أفقياً */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
     }
-    .item-icon{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;font-size:30px;background:rgba(255,255,255,.07)}
-    .item h3{margin:0 0 5px;font-size:17px}.item p{margin:0;color:#93a4b8;font-size:12px;line-height:1.45}
-    .buy{
-      padding:10px 12px;border-radius:14px;background:#10c96f;font-weight:900;min-width:78px
-    }
-    .buy.locked{background:#2f4052;color:#9fb0c0}
-    .close{margin-top:12px}
 
-    .stats{display:flex;justify-content:center;gap:22px;margin:12px 0 18px}
-    .stat{text-align:center}.stat b{display:block;font-size:28px}.stat span{font-size:11px;color:#97a7ba}
-
-    .toast{
-      position:absolute;z-index:30;left:50%;top:72px;transform:translateX(-50%) translateY(-16px);
-      padding:10px 15px;border-radius:14px;background:rgba(5,11,19,.86);border:1px solid rgba(255,255,255,.1);
-      opacity:0;transition:.24s;pointer-events:none;font-weight:800;white-space:nowrap
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      transition: background 0.2s;
     }
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-    .developer-bar{
-      position:absolute;left:18px;right:18px;bottom:8px;z-index:40;height:58px;border-radius:22px;
-      display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(7,11,21,.92);
-      border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(14px);
-      box-shadow:0 10px 30px rgba(0,0,0,.30)
+    button:hover {
+      background-color: #0056b3;
     }
-    .developer-bar.game-hidden{display:none!important}
-    .developer-avatar{
-      width:44px;height:44px;min-width:44px;border-radius:50%;display:grid;place-items:center;
-      font-weight:1000;font-size:20px;background:linear-gradient(145deg,#17de77,#1aa7ff);
-      box-shadow:0 0 25px rgba(20,210,120,.18)
-    }
-    .developer-info{flex:1;text-align:right}.developer-label{font-size:11px;color:#8c9bad}.developer-name{font-size:15px;font-weight:1000}.developer-name span{color:#17de77}
-    .developer-wa{display:flex;align-items:center;justify-content:center;padding:9px 12px;border-radius:13px;background:#15cf72;color:#fff;text-decoration:none;font-weight:1000;font-size:13px}
 
-    .center-message{
-      position:absolute;z-index:14;left:50%;top:50%;transform:translate(-50%,-50%);
-      padding:24px 30px;border-radius:24px;background:rgba(5,10,18,.86);border:1px solid rgba(255,255,255,.1);
-      text-align:center;display:none;min-width:260px
+    /* تصميم زر الخروج */
+    #exitBtn {
+      display: none; /* مخفي افتراضياً */
+      width: 100%;
+      margin-top: 20px;
+      background-color: #dc3545;
     }
-    .center-message.show{display:block}
-    .center-message h2{margin:0 0 8px;font-size:34px}.center-message p{margin:0;color:#aab7c8;line-height:1.7}
 
-    @media(min-width:800px){
-      .controls{left:28px;right:28px}.ctl{width:76px;height:76px}.fire{width:94px}
+    #exitBtn:hover {
+      background-color: #bd2130;
+    }
+
+    .status-text {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div id="app">
-    <canvas id="game"></canvas>
 
-    <!-- TOPBAR HUD -->
-    <div id="hud" class="topbar hidden">
-      <div class="hud">
-        <div class="badge"><small>السكور</small><strong id="score">0</strong></div>
-        <div class="badge"><small>كوينز</small><strong id="coins">0</strong></div>
-        <div class="badge"><small>السرعة</small><strong id="speedLabel">1</strong></div>
-      </div>
-      <button id="pauseBtn" class="icon-btn">Ⅱ</button>
+  <div class="player-card">
+    <h3>مشغل التحكم</h3>
+    
+    <!-- عنصر الصوت -->
+    <audio id="myAudio" controls style="width: 100%;">
+      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+      متصفحك لا يدعم تشغيل الصوت.
+    </audio>
+
+    <!-- الأزرار معكوسة المكان: اليمين (→) أصلح على اليسار والمكان أصبح → ثم || ثم ← -->
+    <div class="controls">
+      <!-- تم وضع زر التقديم/التالي أولاً لإظهاره جهة اليمين مع الحفاظ على وظيفته الأصلية (Next) -->
+      <button id="nextBtn" title="التالي / تقديم">→</button>
+      
+      <!-- زر التوقف المؤقت -->
+      <button id="pauseBtn" title="توقف مؤقت">||</button>
+      
+      <!-- تم وضع زر السابق أخيراً لإظهاره جهة اليسار مع الحفاظ على وظيفته الأصلية (Prev) -->
+      <button id="prevBtn" title="السابق / ترجيع">←</button>
     </div>
 
-    <!-- CONTROLS -->
-    <div id="controls" class="controls hidden">
-      <div class="control-group">
-        <button id="leftBtn" class="ctl">◀</button>
-        <button id="rightBtn" class="ctl">▶</button>
-      </div>
-      <div class="control-group">
-        <button id="shieldBtn" class="ctl" style="font-size: 20px;">🛡️</button>
-        <button id="fireBtn" class="ctl fire">⚡ ليزر</button>
-      </div>
-    </div>
+    <!-- زر الخروج للصفحة الرئيسية (يظهر عند الضغط على ||) -->
+    <button id="exitBtn">الخروج للقائمة الرئيسية</button>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="toast"></div>
-
-    <!-- MAIN HOME SCREEN -->
-    <div id="home" class="screen">
-      <div class="panel">
-        <div class="logo">HIGHWAY RUSH<span>2D EDITION</span></div>
-        <p class="subtitle">سوق، تفادى العربيات، واجمع الكوينز! 🔥<br>كل ثانية بتخليك أسرع وأصعب.</p>
-        <button id="startBtn" class="primary">ابدأ السباق 🚗</button>
-        
-        <div class="menu-grid">
-          <div class="mini-card"><b id="homeCoins">0</b><span>🪙 كوينز محفوظة</span></div>
-          <div class="mini-card"><b id="homeSpeed">1</b><span>⚡ مستوى السرعة</span></div>
-          <div class="mini-card"><b id="homeShield">0</b><span>🛡️ حماية</span></div>
-          <div class="mini-card"><b id="homeGun">0</b><span>🔫 طلقات ليزر</span></div>
-        </div>
-
-        <button id="shopBtn" class="secondary">🛒 المتجر</button>
-        <button id="howBtn" class="secondary">❓ طريقة اللعب</button>
-      </div>
-    </div>
-
-    <!-- SHOP SCREEN -->
-    <div id="shop" class="screen hidden">
-      <div class="panel">
-        <h2 style="margin:0;text-align:center;font-size:26px">المتجر <span style="font-size:14px;color:#8a9ba e;display:block">UPGRADE GARAGE</span></h2>
-        
-        <div class="stats">
-          <div class="stat"><b id="shopCoins">0</b><span>🪙 كوين</span></div>
-          <div class="stat"><b id="shopSpeed">1</b><span>⚡ سرعة</span></div>
-          <div class="stat"><b id="shopShield">0</b><span>🛡️ حماية</span></div>
-        </div>
-
-        <div class="shop-tabs">
-          <button class="tab active" data-tab="upgrades">الترقيات</button>
-          <button class="tab" data-tab="weapons">الأسلحة</button>
-          <button class="tab" data-tab="skins">الشكل</button>
-        </div>
-
-        <div id="items" class="items"></div>
-        <button id="closeShop" class="secondary close">رجوع</button>
-      </div>
-    </div>
-
-    <!-- HOW TO PLAY SCREEN -->
-    <div id="help" class="screen hidden">
-      <div class="panel">
-        <h2 style="margin:0 0 12px;text-align:center;font-size:24px">طريقة اللعب <span style="font-size:13px;color:#8a9bae;display:block">HOW TO PLAY</span></h2>
-        <div style="line-height:1.8;color:#c0d0e0;font-size:14px">
-          <p>↔️ استخدم اليمين والشمال لتحريك عربيتك.</p>
-          <p>🪙 لمّ الكوينز وهي تزود رصيدك تلقائيًا.</p>
-          <p>🚙 عدّي من العربيات والعقبات من غير ما تخبط.</p>
-          <p>💥 زر ليزر يكسر أقرب عقبة قدامك، لو عندك طلقة.</p>
-          <p>🛡️ الحماية تمتص خبطة واحدة وتختفي.</p>
-          <p>🏁 كل ما تكمل وقت أطول، السرعة والصعوبة يزيدوا.</p>
-        </div>
-        <button id="closeHelp" class="primary close">تمام، يلا 🚗</button>
-      </div>
-    </div>
-
-    <!-- GAME OVER / CENTER MESSAGE -->
-    <div id="center" class="center-message">
-      <h2 id="centerTitle">وقفت؟ 😵</h2>
-      <p id="centerText">دوس إعادة وجرّب تكسر رقمك.</p>
-      <div style="display:flex;gap:10px;margin-top:18px">
-        <button id="restartBtn" class="primary" style="font-size:16px;padding:12px">إعادة السباق</button>
-        <button id="homeBtn2" class="secondary" style="margin:0;font-size:16px;padding:12px">الرئيسية</button>
-      </div>
-    </div>
-
-    <!-- DEVELOPER BAR -->
-    <div id="devbar" class="developer-bar">
-      <div class="developer-avatar">T</div>
-      <div class="developer-info">
-        <div class="developer-label">المطور</div>
-        <div class="developer-name">طارق محمود <span>✦</span></div>
-      </div>
-      <a class="developer-wa" href="https://wa.me/" target="_blank">WhatsApp</a>
-    </div>
-
+    <div id="status" class="status-text"></div>
   </div>
 
   <script>
-    (() => { 
-      'use strict';
-      const canvas = document.getElementById('game');
-      const ctx = canvas.getContext('2d');
+    // الحصول على عناصر الواجهة
+    const audio = document.getElementById('myAudio');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const exitBtn = document.getElementById('exitBtn');
+    const status = document.getElementById('status');
 
-      const els = {
-        home:document.getElementById('home'), shop:document.getElementById('shop'), help:document.getElementById('help'),
-        hud:document.getElementById('hud'), controls:document.getElementById('controls'),
-        startBtn:document.getElementById('startBtn'), shopBtn:document.getElementById('shopBtn'),
-        howBtn:document.getElementById('howBtn'), closeShop:document.getElementById('closeShop'),
-        closeHelp:document.getElementById('closeHelp'), pauseBtn:document.getElementById('pauseBtn'),
-        leftBtn:document.getElementById('leftBtn'), rightBtn:document.getElementById('rightBtn'),
-        fireBtn:document.getElementById('fireBtn'), restartBtn:document.getElementById('restartBtn'),
-        homeBtn2:document.getElementById('homeBtn2'), center:document.getElementById('center'),
-        centerTitle:document.getElementById('centerTitle'), centerText:document.getElementById('centerText'),
-        score:document.getElementById('score'), coins:document.getElementById('coins'), speedLabel:document.getElementById('speedLabel'),
-        homeCoins:document.getElementById('homeCoins'), homeSpeed:document.getElementById('homeSpeed'),
-        homeShield:document.getElementById('homeShield'), homeGun:document.getElementById('homeGun'),
-        shopCoins:document.getElementById('shopCoins'), shopSpeed:document.getElementById('shopSpeed'),
-        shopShield:document.getElementById('shopShield'), items:document.getElementById('items'),
-        toast:document.getElementById('toast')
-      };
-
-      let W=0,H=0,dpr=1;
-      function resize(){
-        dpr=Math.min(window.devicePixelRatio||1,2);
-        W=window.innerWidth; H=window.innerHeight;
-        canvas.width=Math.floor(W*dpr); canvas.height=Math.floor(H*dpr);
-        canvas.style.width=W+'px'; canvas.style.height=H+'px';
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-      }
-      window.addEventListener('resize',resize);
-      resize();
-
-      const STORAGE='highway_rush_save_v1';
-      const defaultSave={coins:0,speed:1,shield:0,shots:0,skin:0,best:0};
-      let save=loadSave();
-      function loadSave(){
-        try{return {...defaultSave,...JSON.parse(localStorage.getItem(STORAGE)||'{}')}}catch{return {...defaultSave}}
-      }
-      function persist(){localStorage.setItem(STORAGE,JSON.stringify(save)); updateMenus();}
-
-      const skins=[
-        {name:'نيون أزرق',price:0,body:'#21b8ff',glass:'#d9f6ff',stripe:'#ffffff'},
-        {name:'فلاش أحمر',price:500,body:'#ff3f5f',glass:'#ffe8ee',stripe:'#ffffff'},
-        {name:'ساموراي أسود',price:1200,body:'#171b24',glass:'#c8d3df',stripe:'#ffcc33'},
-        {name:'ذهب',price:2500,body:'#f0b83d',glass:'#fff1bd',stripe:'#fff7dc'}
-      ];
-      let ownedSkins=[0];
-      try{ownedSkins=JSON.parse(localStorage.getItem('highway_rush_skins_v1')||'[0]')}catch{}
-      function saveSkins(){localStorage.setItem('highway_rush_skins_v1',JSON.stringify(ownedSkins))}
-
-      let game={running:false,paused:false,over:false,t:0,score:0,runCoins:0,lane:1,targetLane:1,roadOffset:0,spawnTimer:0,coinTimer:0,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:0,shieldActive:false};
-
-      function road(){
-        const rw=Math.min(W*.84,560);
-        return {left:(W-rw)/2,right:(W+rw)/2,width:rw,lane:rw/3};
-      }
-      function playerRect(){
-        const r=road(), w=Math.min(58,r.lane*.48), h=w*1.55;
-        const x=r.left+r.lane*(game.lane+.5)-w/2;
-        const y=H*.70;
-        return {x,y,w,h};
-      }
-      function smoothPlayerX(dt){
-        const speed=10*dt;
-        game.lane += (game.targetLane-game.lane)*Math.min(1,speed);
-      }
-      function move(dir){
-        if(!game.running||game.over||game.paused)return;
-        game.targetLane=Math.max(0,Math.min(2,game.targetLane+dir));
-        sfx('move');
-      }
-      function activateShield(){
-        if(!game.running||game.over||game.paused)return;
-        if(save.shield<=0){
-          toast('مفيش حماية — اشتري درع من المتجر 🛡️');
-          return;
-        }
-        if(game.shieldActive){
-          toast('🛡️ الحماية مفعلة بالفعل');
-          return;
-        }
-        game.shieldActive=true;
-        sfx('shield');
-        toast('🛡️ الحماية اتفعلت');
-      }
-
-      function fire(){
-        if(!game.running||game.over||game.paused||save.shots<=0){ if(save.shots<=0)toast('مفيش طلقات — روح المتجر 🔫'); return; }
-        save.shots--; persist(); sfx('laser');
-        const p=playerRect();
-        let best=null, bd=Infinity;
-        for(const o of game.obstacles){
-          if(o.dead)continue;
-          const dx=Math.abs((o.x+o.w/2)-(p.x+p.w/2));
-          const dy=p.y-o.y;
-          if(dy>15 && dy<520 && dx<rLaneHalf()) {
-            if(dy<bd){bd=dy;best=o}
-          }
-        }
-        if(best){
-          best.dead=true;
-          burst(best.x+best.w/2,best.y+best.h/2,'laser',14);
-          game.score+=25;
-          toast('💥 اتكسرت العقبة +25');
-        }else toast('⚡ الليزر طلع فاضي');
-      }
-      function rLaneHalf(){return road().lane*.8}
-
-      function spawnObstacle(){
-        const r=road(), lane=Math.floor(Math.random()*3);
-        const w=Math.min(54,r.lane*.48), h=w*1.54;
-        const roll=Math.random();
-        const type=roll<0.12?'truck':(roll<0.34?'suv':'car');
-        const colors=['#e8edf2','#161a20','#b51f32','#2f5f9f','#c7a12b','#4d535c','#f4f4f4'];
-        game.obstacles.push({
-          lane,x:r.left+r.lane*(lane+.5)-w/2,y:-h-20,w,h,
-          speed:(250+Math.random()*90)*(1+game.t*.009),type,
-          color:colors[Math.floor(Math.random()*colors.length)],
-          plate:['Cairo','Alex','EG'][Math.floor(Math.random()*3)],
-          dead:false
-        });
-      }
-      function spawnCoin(){
-        const r=road(),lane=Math.floor(Math.random()*3);
-        game.coins.push({
-          x:r.left+r.lane*(lane+.5),y:-30,r:10,lane,
-          spin:Math.random()*Math.PI*2
-        });
-      }
-
-      function burst(x,y,type,count=12){
-        for(let i=0;i<count;i++){
-          const a=Math.random()*Math.PI*2, sp=50+Math.random()*200;
-          game.particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:.45+Math.random()*.5,max:.9,
-          size:2+Math.random()*4,type});
-        }
-      }
-      function hit(){
-        if(game.shieldActive){
-          game.shieldActive=false;
-          save.shield=Math.max(0,save.shield-1);
-          persist();
-          game.shake=14;
-          burst(playerRect().x+playerRect().w/2,playerRect().y+20,'shield',22);
-          toast('🛡️ الحماية أنقذتك!');
-          sfx('shield');
-          return;
-        }
-        game.over=true;game.running=false;game.shake=20;
-        burst(playerRect().x+playerRect().w/2,playerRect().y+30,'hit',28);sfx('crash');
-        save.coins += game.runCoins;
-        save.best=Math.max(save.best,game.score);
-        persist();
-        els.centerTitle.textContent='اتخبطت 💥';
-        els.centerText.innerHTML=`السكور: <b>${game.score}</b> &nbsp; • &nbsp; كوينز الجولة: <b>${game.runCoins}</b><br>أعلى سكور: <b>${save.best}</b>`;
-        els.center.classList.add('show');
-      }
-
-      function resetGame(){
-        game={...game,running:true,paused:false,over:false,t:0,score:0,runCoins:0,roadOffset:0,spawnTimer:.2,coinTimer:.7,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:performance.now(),lane:1,targetLane:1,shieldActive:false};
-        els.center.classList.remove('show');els.hud.classList.remove('hidden');els.controls.classList.remove('hidden');
-        document.getElementById('devbar').classList.add('game-hidden');
-        startAudio();
-      }
-      function endToHome(){
-        game.running=false;game.over=false;game.paused=false;
-        els.center.classList.remove('show');els.hud.classList.add('hidden');els.controls.classList.add('hidden');
-        document.getElementById('devbar').classList.remove('game-hidden');
-        els.home.classList.remove('hidden');updateMenus();
-      }
-
-      function update(dt){
-        if(!game.running||game.paused)return;
-        game.t+=dt;game.score+=Math.floor(dt*3);
-        const base=320+(save.speed-1)*28;
-        const world=base+Math.min(240,game.t*8);
-        game.roadOffset=(game.roadOffset+world*dt)%120;
-        smoothPlayerX(dt);
-
-        game.spawnTimer-=dt;game.coinTimer-=dt;
-        const interval=Math.max(.40,1.05-game.t*.005);
-        if(game.spawnTimer<=0){spawnObstacle();game.spawnTimer=interval*(.8+Math.random()*.6)}
-        if(game.coinTimer<=0){spawnCoin();game.coinTimer=.55+Math.random()*.7}
-
-        for(const o of game.obstacles){o.y+=o.speed*dt}
-        for(const c of game.coins){c.y+=world*dt;c.spin+=dt*7}
-        for(const s of game.particles){s.x+=s.vx*dt;s.y+=s.vy*dt;s.vy+=220*dt;s.life-=dt}
-        game.particles=game.particles.filter(p=>p.life>0);
-        game.obstacles=game.obstacles.filter(o=>o.y<H+140&&!o.dead);
-        game.coins=game.coins.filter(c=>c.y<H+50);
-
-        const p=playerRect();
-        for(const o of game.obstacles){
-          if(o.dead)continue;
-          if(overlap(p,{x:o.x+4,y:o.y+5,w:o.w-8,h:o.h-10})){hit();break}
-        }
-        if(!game.over){
-          for(let i=game.coins.length-1;i>=0;i--){
-            const c=game.coins[i];
-            const dx=(p.x+p.w/2)-c.x,dy=(p.y+p.h*.35)-c.y;
-            if(dx*dx+dy*dy<(p.w*.55+10)**2){
-              game.coins.splice(i,1);game.runCoins++;game.score+=10;
-              burst(c.x,c.y,'coin',10);sfx('coin');
-            }
-          }
-        }
-        els.score.textContent=game.score;
-        els.coins.textContent=game.runCoins;
-        els.speedLabel.textContent=(1+Math.floor(game.t/18)+save.speed-1);
-      }
-      function overlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
-
-      function drawRoad(){
-        ctx.clearRect(0,0,W,H);
-        const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#08131e');g.addColorStop(1,'#0a0f18');
-        ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-
-        const r=road();
-        ctx.fillStyle='#0b1720';ctx.fillRect(0,0,r.left,H);ctx.fillRect(r.right,0,W-r.right,H);
-        for(let y=-120+game.roadOffset;y<H+120;y+=120){
-          ctx.fillStyle='rgba(255,255,255,.035)';
-          ctx.fillRect(0,y,Math.max(0,r.left-18),3);ctx.fillRect(r.right+18,y,Math.max(0,W-r.right-18),3);
-        }
-
-        ctx.fillStyle='#1b2029';ctx.fillRect(r.left,0,r.width,H);
-        ctx.fillStyle='#343b47';ctx.fillRect(r.left,0,6,H);ctx.fillRect(r.right-6,0,6,H);
-
-        const laneW=r.lane;
-        ctx.save();
-        ctx.setLineDash([32,28]);
-        ctx.lineDashOffset=game.roadOffset;
-        ctx.strokeStyle='rgba(255,255,255,.18)';
-        ctx.lineWidth=4;
-        for(let i=1;i<3;i++){
-          ctx.beginPath();ctx.moveTo(r.left+laneW*i,0);ctx.lineTo(r.left+laneW*i,H);ctx.stroke()
-        }
-        ctx.restore();
-
-        const glow=ctx.createLinearGradient(0,0,0,140);glow.addColorStop(0,'rgba(0,190,255,.13)');glow.addColorStop(1,'transparent');
-        ctx.fillStyle=glow;ctx.fillRect(r.left,0,r.width,140);
-      }
-
-      function drawCar(rect,color,player=false,type='car'){
-        ctx.save();
-        const {x,y,w,h}=rect;
-        ctx.translate(x+w/2,y+h/2);
-
-        ctx.shadowBlur=0;
-        ctx.fillStyle='rgba(0,0,0,.38)';
-        ctx.beginPath();
-        ctx.ellipse(0,h*.40,w*.49,h*.115,0,0,Math.PI*2);
-        ctx.fill();
-
-        const isTruck = type==='truck';
-        const isSUV = type==='suv';
-        const bw = w*.78, bh = h*.91;
-
-        ctx.fillStyle='#090c11';
-        const tireW=w*.15, tireH=h*.22;
-        for(const tx of [-w*.43,w*.28]){
-          for(const ty of [-h*.28,h*.12]){
-            roundRect(ctx,tx,ty,tireW,tireH,Math.max(3,w*.04));ctx.fill();
-            ctx.fillStyle='#4d535d';
-            roundRect(ctx,tx+tireW*.22,ty+tireH*.17,tireW*.56,tireH*.66,3);ctx.fill();
-            ctx.fillStyle='#090c11';
-          }
-        }
-
-        const grad=ctx.createLinearGradient(-w*.45,0,w*.45,0);
-        grad.addColorStop(0,shade(color,-.25));
-        grad.addColorStop(.18,color);
-        grad.addColorStop(.52,shade(color,.18));
-        grad.addColorStop(.82,color);
-        grad.addColorStop(1,shade(color,-.28));
-        ctx.fillStyle=grad;
-        roundRect(ctx,-bw/2,-bh/2,bw,bh,Math.max(8,w*.15));ctx.fill();
-
-        ctx.fillStyle='rgba(10,13,18,.72)';
-        roundRect(ctx,-bw*.38,-bh*.50,bw*.76,bh*.08,4);ctx.fill();
-        roundRect(ctx,-bw*.38,bh*.42,bw*.76,bh*.08,4);ctx.fill();
-
-        const cabinW=bw*(isTruck?.70:isSUV?.68:.62);
-        const cabinH=bh*(isTruck?.48:isSUV?.54:.51);
-        const cabinY=isTruck?.02:-.015;
-        const glass=ctx.createLinearGradient(0,cabinY-cabinH/2,0,cabinY+ cabinH/2);
-        glass.addColorStop(0,'#d8e9f1');
-        glass.addColorStop(.42,'#6d8797');
-        glass.addColorStop(1,'#263640');
-        ctx.fillStyle=glass;
-        roundRect(ctx,-cabinW/2,cabinY-cabinH/2,cabinW,cabinH,Math.max(5,w*.09));ctx.fill();
-
-        ctx.fillStyle='rgba(220,245,255,.32)';
-        ctx.fillRect(-cabinW*.035,cabinY-cabinH*.45,cabinW*.07,cabinH*.9);
-        ctx.fillStyle='rgba(255,255,255,.22)';
-        ctx.fillRect(-cabinW*.40,cabinY-cabinH*.35,cabinW*.22,cabinH*.06);
-
-        ctx.fillStyle='#111820';
-        roundRect(ctx,-bw*.53,-bh*.13,w*.10,w*.13,3);ctx.fill();
-        roundRect(ctx,bw*.43,-bh*.13,w*.10,w*.13,3);ctx.fill();
-
-        ctx.fillStyle='rgba(255,255,255,.16)';
-        roundRect(ctx,-bw*.29,-bh*.43,bw*.58,bh*.09,4);ctx.fill();
-        ctx.fillStyle='rgba(0,0,0,.18)';
-        roundRect(ctx,-bw*.29,bh*.32,bw*.58,bh*.07,4);ctx.fill();
-
-        ctx.shadowBlur=player?12:8;
-        ctx.shadowColor=player?'#a9f0ff':'#ff6a6a';
-        ctx.fillStyle=player?'#effcff':'#ff454f';
-        roundRect(ctx,-bw*.33,-bh*.505,bw*.22,bh*.065,3);ctx.fill();
-        roundRect(ctx,bw*.11,-bh*.505,bw*.22,bh*.065,3);ctx.fill();
-        ctx.shadowBlur=0;
-
-        ctx.fillStyle=player?'#ff4b4b':'#fff0c8';
-        roundRect(ctx,-bw*.31,bh*.43,bw*.20,bh*.055,3);ctx.fill();
-        roundRect(ctx,bw*.11,bh*.43,bw*.20,bh*.055,3);ctx.fill();
-
-        if(player){
-          const stripe=skins[save.skin]?.stripe||'#ffffff';
-          ctx.fillStyle=stripe;
-          ctx.globalAlpha=.82;
-          roundRect(ctx,-w*.045,-bh*.44,w*.09,bh*.88,3);ctx.fill();
-          ctx.globalAlpha=1;
-        }
-
-        ctx.fillStyle='#f1f1e8';
-        roundRect(ctx,-bw*.18,bh*.445,bw*.36,bh*.035,2);ctx.fill();
-
-        ctx.fillStyle='rgba(255,255,255,.11)';
-        ctx.beginPath();
-        ctx.moveTo(-cabinW*.32,cabinY-cabinH*.38);
-        ctx.lineTo(cabinW*.28,cabinY-cabinH*.38);
-        ctx.lineTo(cabinW*.14,cabinY-cabinH*.29);
-        ctx.lineTo(-cabinW*.38,cabinY-cabinH*.29);
-        ctx.closePath();ctx.fill();
-
-        ctx.restore();
-      }
-
-      function roundRect(ctx,x,y,w,h,r){
-        r=Math.max(0,Math.min(r,Math.abs(w)/2,Math.abs(h)/2));
-        ctx.beginPath();
-        ctx.moveTo(x+r,y);
-        ctx.arcTo(x+w,y,x+w,y+h,r);
-        ctx.arcTo(x+w,y+h,x,y+h,r);
-        ctx.arcTo(x,y+h,x,y,r);
-        ctx.arcTo(x,y,x+w,y,r);
-        ctx.closePath();
-      }
-
-      function shade(hex,amount){
-        const n=parseInt(hex.slice(1),16);
-        const r=Math.max(0,Math.min(255,(n>>16)+Math.round(255*amount)));
-        const g=Math.max(0,Math.min(255,((n>>8)&255)+Math.round(255*amount)));
-        const b=Math.max(0,Math.min(255,(n&255)+Math.round(255*amount)));
-        return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
-      }
-
-      function drawCoin(c){
-        ctx.save();ctx.translate(c.x,c.y);
-        const s=Math.abs(Math.cos(c.spin))*.35+.75;
-        ctx.scale(s,1);
-        ctx.shadowBlur=14;ctx.shadowColor='#ffd42f';
-        ctx.fillStyle='#ffc928';ctx.beginPath();ctx.arc(0,0,c.r,0,Math.PI*2);ctx.fill();
-        ctx.shadowBlur=0;ctx.fillStyle='#8b6500';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('C',0,1);
-        ctx.restore();
-      }
-      function drawParticles(){
-        for(const p of game.particles){
-          ctx.globalAlpha=Math.max(0,p.life/p.max);
-          let col='#fff';
-          if(p.type==='coin')col='#ffd43d';
-          if(p.type==='laser')col='#50d8ff';
-          if(p.type==='shield')col='#55a8ff';
-          if(p.type==='hit')col='#ff586d';
-          ctx.fillStyle=col;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill()
-        }
-        ctx.globalAlpha=1;
-      }
-
-      function draw(){
-        ctx.save();
-        if(game.shake>0){
-          ctx.translate((Math.random()-.5)*game.shake,(Math.random()-.5)*game.shake);
-          game.shake*=.89;if(game.shake<.3)game.shake=0;
-        }
-        drawRoad();
-
-        for(const c of game.coins)drawCoin(c);
-        for(const o of game.obstacles)drawCar(o,o.color,false,o.type);
-
-        const p=playerRect();
-        if(game.shieldActive){
-          ctx.save();ctx.strokeStyle='rgba(78,171,255,.8)';ctx.lineWidth=4;ctx.shadowBlur=18;ctx.shadowColor='#4aaeff';
-          ctx.beginPath();ctx.arc(p.x+p.w/2,p.y+p.h*.42,Math.max(p.w,p.h*.38),0,Math.PI*2);ctx.stroke();ctx.restore();
-        }
-        drawCar(p,skins[save.skin]?.body||'#21b8ff',true);
-        drawParticles();
-
-        if(game.running&&!game.paused){
-          const intensity=Math.min(12,3+game.t*.035);
-          ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=2;
-          for(let i=0;i<intensity;i++){
-            const r=road();const x=r.left+Math.random()*r.width;const y=Math.random()*H;
-            ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+25+Math.random()*55);ctx.stroke();
-          }
-        }
-        ctx.restore();
-      }
-
-      function loop(now){
-        const dt=Math.min(.035,(now-game.last)/1000||0);
-        game.last=now;update(dt);draw();requestAnimationFrame(loop)
-      }
-      game.last=performance.now();requestAnimationFrame(loop);
-
-      function toast(msg){
-        els.toast.textContent=msg;els.toast.classList.add('show');
-        clearTimeout(toast._t);toast._t=setTimeout(()=>els.toast.classList.remove('show'),1500)
-      }
-
-      function updateMenus(){
-        els.homeCoins.textContent=save.coins;els.homeSpeed.textContent=save.speed;els.homeShield.textContent=save.shield;els.homeGun.textContent=save.shots;
-        els.shopCoins.textContent=save.coins;els.shopSpeed.textContent=save.speed;els.shopShield.textContent=save.shield;
-      }
-
-      const shopData={
-        upgrades:[
-          {id:'speed',icon:'⚡',title:'Turbo السرعة',desc:'يزود سرعة العربية والدخول في مستويات أسرع.',cost:350,can:()=>true,buy(){
-            if(save.speed>=8){toast('⚡ وصلت لأقصى سرعة');return}
-            if(spend(this.cost)){save.speed++;this.cost=Math.floor(350*Math.pow(1.55,save.speed-1));persist();renderShop('upgrades');toast('⚡ السرعة زادت!')}
-          }},
-          {id:'shield',icon:'🛡️',title:'درع حماية',desc:'يمتص خبطة واحدة أثناء السباق.',cost:450,can:()=>true,buy(){
-            if(save.shield>=5){toast('🛡️ عندك أقصى عدد');return}
-            if(spend(this.cost)){save.shield++;persist();renderShop('upgrades');toast('🛡️ اشتريت حماية')}
-          }},
-        ],
-        weapons:[
-          {id:'shot',icon:'🔫',title:'طلقة ليزر',desc:'تكسر أقرب عربية قدامك. طلقة واحدة لكل شراء.',cost:250,can:()=>true,buy(){
-            if(spend(this.cost)){save.shots++;persist();renderShop('weapons');toast('⚡ طلقة جديدة!')}
-          }},
-          {id:'pack',icon:'💥',title:'باقة ليزر ×5',desc:'خمس طلقات ليزر بسعر أقل.',cost:1000,can:()=>true,buy(){
-            if(spend(this.cost)){save.shots+=5;persist();renderShop('weapons');toast('💥 +5 طلقات')}
-          }}
-        ],
-        skins:[
-          {id:'skin0',icon:'🔵',title:skins[0].name,desc:'شكل البداية.',cost:0,can:()=>true,buy(){save.skin=0;persist();renderShop('skins');toast('🔵 تم اختيار الشكل')}},
-          {id:'skin1',icon:'🔴',title:skins[1].name,desc:'لون رياضي ناري.',cost:500,can:()=>true,buy(){buySkin(1)}},
-          {id:'skin2',icon:'⚫',title:skins[2].name,desc:'شكل غامق وستايل قوي.',cost:1200,can:()=>true,buy(){buySkin(2)}},
-          {id:'skin3',icon:'🟡',title:skins[3].name,desc:'لون ذهبي لامع.',cost:2500,can:()=>true,buy(){buySkin(3)}}
-        ]
-      };
-      function buySkin(i){
-        if(ownedSkins.includes(i)){save.skin=i;persist();renderShop('skins');toast('✅ تم اختيار العربية');return}
-        if(spend(skins[i].price)){ownedSkins.push(i);saveSkins();save.skin=i;persist();renderShop('skins');toast('🏆 العربية اتفتحت!')}
-      }
-      function spend(cost){
-        if(save.coins<cost){toast(`محتاج ${cost-save.coins} كوين كمان 🪙`);return false}
-        save.coins-=cost;return true
-      }
-      function renderShop(tab='upgrades'){
-        document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-        els.shopCoins.textContent=save.coins;els.shopSpeed.textContent=save.speed;els.shopShield.textContent=save.shield;
-        els.items.innerHTML='';
-        const list=shopData[tab];
-        list.forEach(it=>{
-          const owned=it.id.startsWith('skin') && ownedSkins.includes(Number(it.id.replace('skin','')));
-          let label='شراء';
-          let disabled=false;
-          if(it.id==='speed'&&save.speed>=8){label='MAX';disabled=true}
-          if(it.id==='shield'&&save.shield>=5){label='MAX';disabled=true}
-          if(owned){label=(save.skin===Number(it.id.replace('skin',''))?'مختار':'اختيار');}
-          const costText=it.cost===0?'مجاني':`${it.cost} 🪙`;
-          const row=document.createElement('div');row.className='item';
-          row.innerHTML=`<div class="item-icon">${it.icon}</div><div><h3>${it.title}</h3><p>${it.desc}<br><b>${costText}</b></p></div><button class="buy ${disabled?'locked':''}">${label}</button>`;
-          row.querySelector('button').onclick=()=>it.buy();
-          els.items.appendChild(row);
-        });
-      }
-
-      document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>renderShop(b.dataset.tab)));
-
-      els.startBtn.onclick=()=>{els.home.classList.add('hidden');resetGame()};
-      els.shopBtn.onclick=()=>{els.home.classList.add('hidden');els.shop.classList.remove('hidden');renderShop('upgrades')};
-      els.howBtn.onclick=()=>els.help.classList.remove('hidden');
-      els.closeHelp.onclick=()=>els.help.classList.add('hidden');
-      els.closeShop.onclick=()=>{els.shop.classList.add('hidden');els.home.classList.remove('hidden');updateMenus()};
-      els.restartBtn.onclick=resetGame;
-      els.homeBtn2.onclick=endToHome;
-      document.getElementById('shieldBtn').addEventListener('pointerdown',e=>{e.preventDefault();activateShield()});
-      els.pauseBtn.onclick=()=>{
-        if(!game.running||game.over)return;
-        game.paused=!game.paused;els.pauseBtn.textContent=game.paused?'▶':'Ⅱ';toast(game.paused?'⏸️ إيقاف مؤقت':'▶️ نكمل!');
-      };
+    // 1. عند الضغط على زر التوقف المؤقت (||)
+    pauseBtn.addEventListener('click', () => {
+      // إيقاف الصوت مؤقتاً
+      audio.pause();
       
-      function holdButton(btn,dir){
-        let timer=null;
-        const down=e=>{e.preventDefault();move(dir);timer=setInterval(()=>move(dir),115)};
-        const up=e=>{e.preventDefault();clearInterval(timer);timer=null};
-        btn.addEventListener('pointerdown',down);['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,up));
-      }
+      // تعلية الصوت إلى الحد الأقصى (1.0 = 100%)
+      audio.volume = 1.0;
       
-      holdButton(els.leftBtn,-1);
-      holdButton(els.rightBtn,1);
-      els.fireBtn.addEventListener('pointerdown',e=>{e.preventDefault();fire()});
+      // إظهار زر الخروج للقائمة الرئيسية
+      exitBtn.style.display = 'block';
 
-      window.addEventListener('keydown',e=>{
-        if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a'){e.preventDefault();move(-1)}
-        if(e.key==='ArrowRight'||e.key.toLowerCase()==='d'){e.preventDefault();move(1)}
-        if(e.code==='Space'){e.preventDefault();fire()}
-        if(e.key==='p'||e.key==='P')els.pauseBtn.click();
-      });
+      status.innerText = "تم إيقاف الصوت، تعلية الصوت لـ 100%، وإظهار زر الخروج.";
+    });
 
-      // Audio System - تم التعلية بتكبير Master Gain و SFX Gains
-      let audioCtx=null,master=null,musicTimer=null,musicStarted=false;
-      function startAudio(){
-        if(!audioCtx){
-          audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-          master=audioCtx.createGain();
-          master.gain.value=.75; // تم ترفيع الصوت العام من 0.20 إلى 0.75
-          master.connect(audioCtx.destination);
-        }
-        if(audioCtx.state==='suspended')audioCtx.resume();
-        if(!musicStarted){
-          musicStarted=true;
-          const scale=[196,220,247,294,330,294,247,220];
-          let step=0;
-          musicTimer=setInterval(()=>{
-            if(!audioCtx||game.paused)return;
-            const t=audioCtx.currentTime;
-            const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-            o.type='triangle';o.frequency.value=scale[step%scale.length];
-            g.gain.setValueAtTime(.0001,t);
-            g.gain.exponentialRampToValueAtTime(.25,t+.025); // رفع صوت النغمات الرئيسية
-            g.gain.exponentialRampToValueAtTime(.0001,t+.22);
-            o.connect(g);g.connect(master);o.start(t);o.stop(t+.24);
+    // زر الخروج للصفحة الرئيسية
+    exitBtn.addEventListener('click', () => {
+      // يمكنك تغيير 'index.html' إلى رابط الصفحة الرئيسية المطلوبة
+      window.location.href = 'index.html';
+    });
 
-            const h=audioCtx.createOscillator(), hg=audioCtx.createGain();
-            h.type='sine';
-            h.frequency.value=scale[(step+2)%scale.length]*0.5;
-            hg.gain.setValueAtTime(.0001,t);
-            hg.gain.exponentialRampToValueAtTime(.12,t+.03); // رفع الصوت الثانوي
-            hg.gain.exponentialRampToValueAtTime(.0001,t+.23);
-            h.connect(hg);hg.connect(master);h.start(t);h.stop(t+.24);
-            step++;
-          },245);
-        }
-      }
+    // 2. الاحتفاظ بالوظائف الأصلية للأزرار المعكوسة
+    
+    // زر (←) يؤدي وظيفة الترجيع / السابق الأصلية
+    prevBtn.addEventListener('click', () => {
+      audio.currentTime = Math.max(0, audio.currentTime - 5); // ترجيع 5 ثوانٍ
+      status.innerText = "تم الترجيع للخلف (الوظيفة الأصلية لـ ←)";
+    });
 
-      function tone(freq,dur,type='sine',gain=.25){
-        if(!audioCtx||!master)return;
-        const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
-        o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-        o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.03);
-      }
-
-      function sfx(kind){
-        try{
-          startAudio();
-          if(kind==='coin'){tone(900,.08,'triangle',.30);setTimeout(()=>tone(1300,.10,'triangle',.28),55)}
-          else if(kind==='move')tone(330,.06,'square',.15)
-          else if(kind==='laser'){tone(120,.12,'sawtooth',.35);setTimeout(()=>tone(700,.10,'triangle',.25),30)}
-          else if(kind==='shield'){tone(420,.11,'sine',.30);setTimeout(()=>tone(670,.12,'sine',.25),80)}
-          else if(kind==='crash'){tone(90,.22,'sawtooth',.45);setTimeout(()=>tone(55,.24,'square',.35),80)}
-        }catch{}
-      }
-
-      let audioArmed=false;
-      function armAudio(){
-        if(audioArmed)return;
-        audioArmed=true;
-        try{startAudio()}catch{}
-      }
-      document.addEventListener('pointerdown',armAudio,{once:true});
-      document.addEventListener('keydown',armAudio,{once:true});
-
-      updateMenus();
-      drawRoad();
-    })();
+    // زر (→) يؤدي وظيفة التقديم / التالي الأصلية
+    nextBtn.addEventListener('click', () => {
+      audio.currentTime = Math.min(audio.duration, audio.currentTime + 5); // تقديم 5 ثوانٍ
+      status.innerText = "تم التقديم للأمام (الوظيفة الأصلية لـ →)";
+    });
   </script>
+
 </body>
 </html>
