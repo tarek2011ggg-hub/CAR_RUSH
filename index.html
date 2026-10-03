@@ -133,8 +133,8 @@ text-align:center;display:none;min-width:260px
   <div class="panel">
     <div class="logo">HIGHWAY<span>RUSH • 2D</span></div>
     <div class="subtitle">
-      اجتز العربيات، لمّ الكوينز، وكبّر سرعتك.<br>
-      العربية ما بتقفش — أنت بس اتني يمين وشمال وعيش! 🔥
+      سوق، تفادى العربيات، واجمع الكوينز! 🔥<br>
+      كل ثانية بتخليك أسرع وأصعب.
     </div>
     <button id="startBtn" class="primary">ابدأ السباق 🚗</button>
     <div class="menu-grid">
@@ -192,10 +192,11 @@ text-align:center;display:none;min-width:260px
 
 <div id="controls" class="controls hidden">
   <div class="control-group">
-    <button id="leftBtn" class="ctl">◀</button>
-    <button id="rightBtn" class="ctl">▶</button>
+    <button id="leftBtn" class="ctl">▶</button>
+    <button id="rightBtn" class="ctl">◀</button>
   </div>
   <div class="control-group">
+    <button id="shieldBtn" class="ctl fire" style="background:linear-gradient(135deg,#3d8cff,#36d8ff)">🛡️ حماية</button>
     <button id="fireBtn" class="ctl fire">⚡ ليزر</button>
   </div>
 </div>
@@ -272,7 +273,7 @@ let ownedSkins=[0];
 try{ownedSkins=JSON.parse(localStorage.getItem('highway_rush_skins_v1')||'[0]')}catch{}
 function saveSkins(){localStorage.setItem('highway_rush_skins_v1',JSON.stringify(ownedSkins))}
 
-let game={running:false,paused:false,over:false,t:0,score:0,runCoins:0,lane:1,targetLane:1,roadOffset:0,spawnTimer:0,coinTimer:0,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:0};
+let game={running:false,paused:false,over:false,t:0,score:0,runCoins:0,lane:1,targetLane:1,roadOffset:0,spawnTimer:0,coinTimer:0,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:0,shieldActive:false};
 const keys={left:false,right:false};
 
 function road(){
@@ -294,6 +295,21 @@ function move(dir){
   game.targetLane=Math.max(0,Math.min(2,game.targetLane+dir));
   sfx('move');
 }
+function activateShield(){
+  if(!game.running||game.over||game.paused)return;
+  if(save.shield<=0){
+    toast('مفيش حماية — اشتري درع من المتجر 🛡️');
+    return;
+  }
+  if(game.shieldActive){
+    toast('🛡️ الحماية مفعلة بالفعل');
+    return;
+  }
+  game.shieldActive=true;
+  sfx('shield');
+  toast('🛡️ الحماية اتفعلت');
+}
+
 function fire(){
   if(!game.running||game.over||game.paused||save.shots<=0){ if(save.shots<=0)toast('مفيش طلقات — روح المتجر 🔫'); return; }
   save.shots--; persist(); sfx('laser');
@@ -346,10 +362,15 @@ function burst(x,y,type,count=12){
   }
 }
 function hit(){
-  if(save.shield>0){
-    save.shield--;persist();game.shake=14;burst(playerRect().x+playerRect().w/2,playerRect().y+20,'shield',22);
+  if(game.shieldActive){
+    game.shieldActive=false;
+    save.shield=Math.max(0,save.shield-1);
+    persist();
+    game.shake=14;
+    burst(playerRect().x+playerRect().w/2,playerRect().y+20,'shield',22);
     toast('🛡️ الحماية أنقذتك!');
-    sfx('shield');return;
+    sfx('shield');
+    return;
   }
   game.over=true;game.running=false;game.shake=20;
   burst(playerRect().x+playerRect().w/2,playerRect().y+30,'hit',28);sfx('crash');
@@ -365,7 +386,7 @@ function collectCoin(i){
 }
 
 function resetGame(){
-  game={...game,running:true,paused:false,over:false,t:0,score:0,runCoins:0,roadOffset:0,spawnTimer:.2,coinTimer:.7,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:performance.now(),lane:1,targetLane:1};
+  game={...game,running:true,paused:false,over:false,t:0,score:0,runCoins:0,roadOffset:0,spawnTimer:.2,coinTimer:.7,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:performance.now(),lane:1,targetLane:1,shieldActive:false};
   els.center.classList.remove('show');els.hud.classList.remove('hidden');els.controls.classList.remove('hidden');
   document.getElementById('devbar').classList.add('game-hidden');
   startAudio();
@@ -612,7 +633,7 @@ function draw(){
   for(const o of game.obstacles)drawCar(o,o.color,false,o.type);
 
   const p=playerRect();
-  if(save.shield>0){
+  if(game.shieldActive){
     ctx.save();ctx.strokeStyle='rgba(78,171,255,.8)';ctx.lineWidth=4;ctx.shadowBlur=18;ctx.shadowColor='#4aaeff';
     ctx.beginPath();ctx.arc(p.x+p.w/2,p.y+p.h*.42,Math.max(p.w,p.h*.38),0,Math.PI*2);ctx.stroke();ctx.restore();
   }
@@ -712,6 +733,7 @@ els.closeHelp.onclick=()=>els.help.classList.add('hidden');
 els.closeShop.onclick=()=>{els.shop.classList.add('hidden');els.home.classList.remove('hidden');updateMenus()};
 els.restartBtn.onclick=resetGame;
 els.homeBtn2.onclick=endToHome;
+document.getElementById('shieldBtn').addEventListener('pointerdown',e=>{e.preventDefault();activateShield()});
 els.pauseBtn.onclick=()=>{
   if(!game.running||game.over)return;
   game.paused=!game.paused;els.pauseBtn.textContent=game.paused?'▶':'Ⅱ';toast(game.paused?'⏸️ إيقاف مؤقت':'▶️ نكمل!');
@@ -744,7 +766,7 @@ function startAudio(){
     const scale=[196,220,247,294,330,294,247,220];
     let step=0;
     musicTimer=setInterval(()=>{
-      if(!audioCtx||game.paused||!game.running)return;
+      if(!audioCtx||game.paused)return;
       const t=audioCtx.currentTime;
       const o=audioCtx.createOscillator(),g=audioCtx.createGain();
       o.type='triangle';o.frequency.value=scale[step%scale.length];
