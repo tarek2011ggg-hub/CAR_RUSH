@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>LUDO ARENA</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{min-height:100vh;font-family:Arial,sans-serif;color:#fff;overflow-x:hidden;background:radial-gradient(circle at 15% 15%,rgba(255,0,90,.22),transparent 30%),radial-gradient(circle at 85% 20%,rgba(0,180,255,.20),transparent 30%),radial-gradient(circle at 50% 100%,rgba(130,0,255,.20),transparent 35%),#070812}
+button{font-family:inherit}
+.screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:20px}
+.screen.active{display:flex}
+.card{width:min(500px,100%);padding:28px 20px;border:1px solid rgba(255,255,255,.12);border-radius:28px;background:rgba(10,12,28,.84);box-shadow:0 25px 80px rgba(0,0,0,.45);backdrop-filter:blur(16px);text-align:center}
+.logo{font-size:clamp(58px,18vw,100px);line-height:.75;font-weight:1000;letter-spacing:3px;background:linear-gradient(90deg,#ff315d,#ffce31,#39e77a,#35baff,#a968ff,#ff315d);background-size:300% 100%;-webkit-background-clip:text;color:transparent;animation:gradient 5s linear infinite}
+.logo span{font-size:.27em;letter-spacing:10px}
+@keyframes gradient{to{background-position:300% 0}}
+.subtitle{color:#aeb5d1;margin:18px 0 28px;font-size:14px}
+.main-btn{width:100%;border:0;border-radius:17px;padding:17px;margin:7px 0;color:#fff;font-weight:900;font-size:17px;cursor:pointer;background:linear-gradient(135deg,#ff315d,#a72cff);box-shadow:0 10px 28px rgba(167,44,255,.25)}
+.main-btn.alt{background:rgba(255,255,255,.09)}
+.main-btn:active{transform:scale(.98)}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.option{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;padding:15px 5px;border-radius:16px;cursor:pointer;font-weight:900}
+.option.selected{border-color:#ffcc3a;background:rgba(255,204,58,.15);box-shadow:0 0 20px rgba(255,204,58,.13)}
+.back{color:#aeb5d1;cursor:pointer;margin-top:15px}
+#gameScreen{padding:10px;align-items:flex-start}
+.game-wrap{width:min(720px,100%);margin:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:5px 0 10px}
+.turn-box,.dice-box,.mini-btn{border:1px solid rgba(255,255,255,.12);background:rgba(10,12,28,.78);border-radius:16px;padding:10px 12px}
+.turn-box{flex:1;text-align:center;font-weight:900}
+.turn-dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-left:6px}
+.mini-btn{color:#fff;cursor:pointer;font-weight:900}
+.dice-box{min-width:58px;text-align:center;font-size:25px;font-weight:1000}
+.scorebar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.score{border-radius:13px;padding:7px 4px;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:11px}
+.score b{display:block;font-size:18px;margin-top:2px}
+.red{--c:#ff315d}.green{--c:#38e77a}.yellow{--c:#ffd23d}.blue{--c:#35baff}
+.board{width:min(94vw,680px);aspect-ratio:1;margin:auto;padding:7px;border-radius:24px;background:#15182b;box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 40px rgba(100,80,255,.12);display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);gap:2px;position:relative;touch-action:manipulation}
+.cell{border-radius:4px;background:#f0f1f6;position:relative;display:flex;align-items:center;justify-content:center}
+.empty-cell{background:transparent}
+.home-area{border-radius:10px;padding:8px;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:7px}
+.home-red{background:rgba(255,49,93,.9)}.home-green{background:rgba(56,231,122,.9)}.home-yellow{background:rgba(255,210,61,.95)}.home-blue{background:rgba(53,186,255,.9)}
+.home-slot{background:rgba(255,255,255,.88);border-radius:50%;box-shadow:inset 0 0 0 3px rgba(0,0,0,.08)}
+.path{background:#f4f5fa;border:1px solid rgba(0,0,0,.05)}
+.path.safe:after{content:"★";position:absolute;font-size:11px;color:#60677c;opacity:.8}
+.home-red-path{background:#ffb1c1}.home-green-path{background:#baf5cf}.home-yellow-path{background:#ffeaa0}.home-blue-path{background:#b5e7fb}
+.center{background:conic-gradient(#ff315d 0 25%,#38e77a 25% 50%,#ffd23d 50% 75%,#35baff 75% 100%);clip-path:polygon(50% 50%,0 0,100% 0,50% 50%,100% 100%,50% 50%,0 100%);border-radius:5px}
+.token{width:76%;height:76%;border-radius:50%;position:absolute;z-index:5;display:flex;align-items:center;justify-content:center;font-size:clamp(10px,2.5vw,18px);font-weight:1000;color:#fff;border:2px solid rgba(255,255,255,.9);box-shadow:0 4px 8px rgba(0,0,0,.35),inset 0 2px 3px rgba(255,255,255,.35);cursor:pointer;transition:transform .15s}
+.token:hover{transform:scale(1.12)}.token.red{background:#ef244e}.token.green{background:#22c965}.token.yellow{background:#f0b900;color:#3b2b00}.token.blue{background:#159ee6}
+.token.movable{animation:pulse .75s infinite alternate;box-shadow:0 0 0 3px #fff,0 0 18px var(--c)}
+@keyframes pulse{to{transform:scale(1.12)}}
+.dice-area{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0}
+.dice{width:76px;height:76px;border-radius:18px;background:#fff;color:#111;display:flex;align-items:center;justify-content:center;font-size:42px;box-shadow:0 12px 30px rgba(0,0,0,.3);cursor:pointer;user-select:none}
+.dice.rolling{animation:roll .45s linear infinite}
+@keyframes roll{50%{transform:rotate(180deg) scale(.85)}100%{transform:rotate(360deg)}}
+.roll-text{text-align:center;font-size:13px;color:#aeb5d1}
+.status{text-align:center;color:#dfe3f5;min-height:22px;font-size:14px;font-weight:800}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);opacity:0;pointer-events:none;padding:13px 20px;border-radius:14px;background:rgba(15,17,32,.95);border:1px solid rgba(255,255,255,.14);z-index:100;transition:.25s;font-weight:900}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.overlay{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}
+.overlay.show{display:flex}
+.win-card{width:min(430px,100%);background:#0c0f20;border:1px solid rgba(255,255,255,.14);border-radius:28px;padding:30px 20px;text-align:center;box-shadow:0 25px 90px rgba(0,0,0,.6)}
+.win-icon{font-size:65px}.win-title{font-size:34px;font-weight:1000;margin:8px}.win-sub{color:#aeb5d1;margin-bottom:22px}
+#loadingScreen{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:#070812}
+.loading-logo{font-size:70px;font-weight:1000;line-height:.75;text-align:center;background:linear-gradient(90deg,#ff315d,#ffce31,#39e77a,#35baff,#a968ff,#ff315d);background-size:300% 100%;-webkit-background-clip:text;color:transparent;animation:gradient 3s linear infinite}
+.loading-logo span{font-size:24px;letter-spacing:8px}.loading-sub{text-align:center;color:#8d95b3;margin-top:22px;font-size:12px}
+.loading-ring{width:46px;height:46px;margin:28px auto 14px;border:4px solid rgba(255,255,255,.12);border-top-color:#ff315d;border-right-color:#35baff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}.loading-dots{text-align:center;color:#fff;letter-spacing:7px;animation:blink 1s infinite}@keyframes blink{50%{opacity:.25}}
+.music-button{position:fixed;top:12px;left:12px;z-index:210;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(15,17,35,.85);color:#fff;cursor:pointer}
+.developer{margin-top:20px;font-size:12px;color:#7f87a5}.developer b{color:#25d366}
+</style>
+
+<style>
+.developer-bar{
+  position:fixed;
+  left:50%;
+  bottom:10px;
+  transform:translateX(-50%);
+  width:min(430px,calc(100% - 24px));
+  z-index:80;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:9px 11px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:18px;
+  background:rgba(8,10,22,.88);
+  box-shadow:0 12px 35px rgba(0,0,0,.4);
+  backdrop-filter:blur(14px);
+}
+.developer-avatar{
+  width:40px;
+  height:40px;
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  font-weight:1000;
+  color:#fff;
+  background:linear-gradient(135deg,#25d366,#0c9f4b);
+  box-shadow:0 0 16px rgba(37,211,102,.25);
+}
+.developer-info{flex:1;text-align:right;line-height:1.1}
+.developer-label{font-size:10px;color:#7f87a5;margin-bottom:4px}
+.developer-name{font-size:14px;font-weight:1000;color:#fff}
+.developer-name span{color:#25d366}
+.developer-wa{
+  text-decoration:none;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  padding:8px 11px;
+  border-radius:11px;
+  background:#25d366;
+}
+@media(max-height:650px){
+  .developer-bar{bottom:5px;padding:6px 9px}
+  .developer-avatar{width:34px;height:34px}
+}
+</style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div>
+    <div class="loading-logo">LUDO<br><span>ARENA</span></div>
+    <div class="loading-sub">THE ULTIMATE LUDO BATTLE</div>
+    <div class="loading-ring"></div>
+    <div class="loading-dots">● ● ●</div>
+  </div>
+</div>
+
+<button class="music-button" id="musicButton">🔇</button>
+
+<section id="homeScreen" class="screen active">
+  <div class="card">
+    <div class="logo">LUDO<br><span>ARENA</span></div>
+    <div class="subtitle">لعبة لودو كلاسيكية بروح جديدة 🎲</div>
+    <button class="main-btn" id="playBtn">🎮 ابدأ اللعب</button>
+    <button class="main-btn alt" id="rulesBtn">📖 طريقة اللعب</button>
+    <div class="developer">Made with ❤️ by <b>طارق محمود</b></div>
+  </div>
+</section>
+
+<section id="playersScreen" class="screen">
+  <div class="card">
+    <h2>اختار عدد اللاعبين</h2>
+    <div class="options">
+      <button class="option" data-players="2">👥<br>2 لاعبين</button>
+      <button class="option selected" data-players="3">👥<br>3 لاعبين</button>
+      <button class="option" data-players="4">👥<br>4 لاعبين</button>
+    </div>
+    <button class="main-btn" id="startBtn">🚀 ابدأ المباراة</button>
+    <div class="back" id="playersBack">← رجوع</div>
+  </div>
+</section>
+
+<section id="rulesScreen" class="screen">
+  <div class="card">
+    <h2>📖 طريقة اللعب</h2>
+    <p>🎲 اضغط على النرد لرميه.</p>
+    <p>🏠 تحتاج إلى 6 لإخراج قطعة من البيت.</p>
+    <p>➡️ بعد إخراج القطعة تتحرك حسب رقم النرد.</p>
+    <p>💥 إذا وقفت على قطعة خصم في خانة غير آمنة، ترجع لبيتها.</p>
+    <p>⭐ الخانات الآمنة تحمي القطع.</p>
+    <p>🏆 أول لاعب يدخل القطع الأربع للنهاية يفوز.</p>
+    <p>6️⃣ الحصول على 6 يعطيك رمية إضافية.</p>
+    <button class="main-btn" id="rulesBack">تمام 👍</button>
+  </div>
+</section>
+
+<section id="gameScreen" class="screen">
+  <div class="game-wrap">
+    <div class="topbar">
+      <button class="mini-btn" id="exitBtn">✕ خروج</button>
+      <div class="turn-box" id="turnBox"></div>
+      <div class="dice-box" id="diceSmall">🎲</div>
+    </div>
+    <div class="scorebar" id="scorebar"></div>
+    <div class="board" id="board"></div>
+    <div class="dice-area">
+      <div>
+        <div class="dice" id="dice">⚀</div>
+        <div class="roll-text">اضغط لرمي النرد</div>
+      </div>
+    </div>
+    <div class="status" id="status">ارمِ النرد للبدء</div>
+  </div>
+</section>
+
+<div id="toast"></div>
+
+<div class="overlay" id="winOverlay">
+  <div class="win-card">
+    <div class="win-icon">🏆</div>
+    <div class="win-title" id="winTitle">فاز اللاعب!</div>
+    <div class="win-sub" id="winSub">مبروك 🎉</div>
+    <button class="main-btn" id="againBtn">🔄 مباراة جديدة</button>
+    <button class="main-btn alt" id="homeBtn">🏠 الرئيسية</button>
+  </div>
+</div>
+
+<script>
+const COLORS={
+  red:{name:"الأحمر",color:"#ff315d"},
+  green:{name:"الأخضر",color:"#38e77a"},
+  yellow:{name:"الأصفر",color:"#ffd23d"},
+  blue:{name:"الأزرق",color:"#35baff"}
+};
+const PLAYER_ORDER=["red","green","yellow","blue"];
+
+const PATH=[
+ [6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],
+ [1,7],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],
+ [7,13],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],
+ [13,7],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[7,1]
+];
+
+const START_INDEX={red:0,green:13,yellow:26,blue:39};
+
+const HOME_PATH={
+ red:[[7,2],[7,3],[7,4],[7,5],[7,6],[7,7]],
+ green:[[2,7],[3,7],[4,7],[5,7],[6,7],[7,7]],
+ yellow:[[7,12],[7,11],[7,10],[7,9],[7,8],[7,7]],
+ blue:[[12,7],[11,7],[10,7],[9,7],[8,7],[7,7]]
+};
+
+const HOME_SLOTS={
+ red:[[2,2],[2,4],[4,2],[4,4]],
+ green:[[2,10],[2,12],[4,10],[4,12]],
+ yellow:[[10,10],[10,12],[12,10],[12,12]],
+ blue:[[10,2],[10,4],[12,2],[12,4]]
+};
+
+const SAFE=new Set([0,8,13,21,26,34,39,47]);
+
+let playersCount=3;
+let players=[];
+let currentPlayer=0;
+let diceValue=0;
+let rolling=false;
+let gameOver=false;
+
+const board=document.getElementById("board");
+const dice=document.getElementById("dice");
+const diceSmall=document.getElementById("diceSmall");
+const statusEl=document.getElementById("status");
+const turnBox=document.getElementById("turnBox");
+const scorebar=document.getElementById("scorebar");
+const toast=document.getElementById("toast");
+
+function showScreen(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+}
+
+playBtn.onclick=()=>showScreen("playersScreen");
+rulesBtn.onclick=()=>showScreen("rulesScreen");
+playersBack.onclick=()=>showScreen("homeScreen");
+rulesBack.onclick=()=>showScreen("homeScreen");
+
+document.querySelectorAll("[data-players]").forEach(btn=>{
+ btn.onclick=()=>{
+  document.querySelectorAll("[data-players]").forEach(x=>x.classList.remove("selected"));
+  btn.classList.add("selected");
+  playersCount=Number(btn.dataset.players);
+ };
+});
+
+startBtn.onclick=startGame;
+
+exitBtn.onclick=()=>{
+ if(confirm("هل تريد الخروج من المباراة؟")){
+  gameOver=false;
+  showScreen("homeScreen");
+ }
+};
+
+function createPlayers(){
+ players=[];
+ for(let i=0;i<playersCount;i++){
+  const color=PLAYER_ORDER[i];
+  players.push({
+   id:color,
+   name:"اللاعب "+(i+1),
+   color,
+   tokens:[
+    {state:"home",step:-1},
+    {state:"home",step:-1},
+    {state:"home",step:-1},
+    {state:"home",step:-1}
+   ],
+   finished:0
+  });
+ }
+}
+
+function startGame(){
+ createPlayers();
+ currentPlayer=0;
+ diceValue=0;
+ rolling=false;
+ gameOver=false;
+ showScreen("gameScreen");
+ buildBoard();
+ updateUI();
+ setStatus("ارمِ النرد للبدء 🎲");
+}
+
+function cellKey(r,c){return r+"-"+c}
+
+function createCell(r,c){
+ const cell=document.createElement("div");
+ cell.className="cell empty-cell";
+ cell.dataset.r=r;
+ cell.dataset.c=c;
+ cell.id="cell-"+cellKey(r,c);
+ board.appendChild(cell);
+ return cell;
+}
+
+function getCell(r,c){return document.getElementById("cell-"+cellKey(r,c))}
+
+function buildBoard(){
+ board.innerHTML="";
+ for(let r=0;r<15;r++)for(let c=0;c<15;c++)createCell(r,c);
+
+ paintHome("red",0,0);
+ paintHome("green",0,9);
+ paintHome("yellow",9,9);
+ paintHome("blue",9,0);
+
+ PATH.forEach((p,index)=>{
+  const cell=getCell(p[0],p[1]);
+  cell.className="cell path";
+  cell.dataset.path=index;
+  if(SAFE.has(index))cell.classList.add("safe");
+ });
+
+ Object.keys(HOME_PATH).forEach(color=>{
+  HOME_PATH[color].forEach((p,index)=>{
+   const cell=getCell(p[0],p[1]);
+   cell.className="cell path home-"+color+"-path";
+  });
+ });
+
+ for(let r=6;r<=8;r++)for(let c=6;c<=8;c++)getCell(r,c).className="cell center";
+ renderTokens();
+}
+
+function paintHome(color,r,c){
+ for(let rr=r;rr<r+6;rr++)for(let cc=c;cc<c+6;cc++)getCell(rr,cc).className="cell home-area home-"+color;
+ HOME_SLOTS[color].forEach(p=>getCell(p[0],p[1]).className="cell home-slot");
+}
+
+function tokenAbsolutePosition(player,token){
+ if(token.state==="home")return null;
+ if(token.state==="finished")return HOME_PATH[player.color][5];
+ if(token.step>=52)return HOME_PATH[player.color][token.step-52]||HOME_PATH[player.color][5];
+ return PATH[(START_INDEX[player.color]+token.step)%52];
+}
+
+function tokenPathIndex(player,token){
+ if(token.state!=="path")return null;
+ return (START_INDEX[player.color]+token.step)%52;
+}
+
+function renderTokens(){
+ document.querySelectorAll(".token").forEach(t=>t.remove());
+
+ players.forEach((player,pi)=>{
+  player.tokens.forEach((token,ti)=>{
+   const pos=tokenAbsolutePosition(player,token);
+   let cell;
+
+   if(token.state==="home"){
+    const p=HOME_SLOTS[player.color][ti];
+    cell=getCell(p[0],p[1]);
+   }else cell=getCell(pos[0],pos[1]);
+
+   if(!cell)return;
+
+   const el=document.createElement("div");
+   el.className="token "+player.color;
+   el.textContent=ti+1;
+   el.dataset.player=pi;
+   el.dataset.token=ti;
+
+   if(canMoveToken(player,token,diceValue)&&pi===currentPlayer&&diceValue>0)el.classList.add("movable");
+
+   el.onclick=e=>{
+    e.stopPropagation();
+    chooseToken(pi,ti);
+   };
+
+   cell.appendChild(el);
+  });
+ });
+}
+
+function canMoveToken(player,token,value){
+ if(value<1||token.state==="finished")return false;
+ if(token.state==="home")return value===6;
+ return token.step+value<=57;
+}
+
+function chooseToken(pi,ti){
+ if(gameOver||rolling)return;
+ if(pi!==currentPlayer)return;
+
+ const player=players[pi];
+ const token=player.tokens[ti];
+
+ if(!canMoveToken(player,token,diceValue)){
+  showToast("القطعة دي مش قادرة تتحرك بالنرد الحالي");
+  return;
+ }
+
+ moveToken(pi,ti);
+}
+
+function moveToken(pi,ti){
+ const player=players[pi];
+ const token=player.tokens[ti];
+ const value=diceValue;
+
+ if(token.state==="home"){
+  token.state="path";
+  token.step=0;
+ }else{
+  token.step+=value;
+  if(token.step===57){
+   token.state="finished";
+   player.finished++;
+   showToast("🏆 قطعة دخلت النهاية!");
+  }
+ }
+
+ captureOpponents(pi,ti);
+ diceValue=0;
+ renderTokens();
+ updateUI();
+
+ if(player.finished===4){
+  finishGame(player);
+  return;
+ }
+
+ if(value===6){
+  setStatus("🎲 جبت 6! ليك رمية إضافية");
+ }else nextPlayer();
+}
+
+function captureOpponents(pi,ti){
+ const player=players[pi];
+ const token=player.tokens[ti];
+ if(token.state!=="path")return;
+
+ const pathIndex=tokenPathIndex(player,token);
+ if(SAFE.has(pathIndex))return;
+
+ players.forEach((opponent,oi)=>{
+  if(oi===pi)return;
+
+  opponent.tokens.forEach(enemy=>{
+   if(enemy.state!=="path")return;
+   if(tokenPathIndex(opponent,enemy)===pathIndex){
+    enemy.state="home";
+    enemy.step=-1;
+    showToast("💥 أكلت قطعة من "+opponent.name);
+   }
+  });
+ });
+}
+
+const diceFaces=["⚀","⚁","⚂","⚃","⚄","⚅"];
+dice.onclick=rollDice;
+
+function rollDice(){
+ if(gameOver||rolling)return;
+ if(diceValue!==0){
+  setStatus("حرّك القطعة المتاحة الأول 👆");
+  return;
+ }
+
+ rolling=true;
+ dice.classList.add("rolling");
+ statusEl.textContent="جاري رمي النرد...";
+
+ let ticks=0;
+ const timer=setInterval(()=>{
+  const random=1+Math.floor(Math.random()*6);
+  dice.textContent=diceFaces[random-1];
+  diceSmall.textContent=diceFaces[random-1];
+  ticks++;
+
+  if(ticks>=10){
+   clearInterval(timer);
+   diceValue=1+Math.floor(Math.random()*6);
+   dice.textContent=diceFaces[diceValue-1];
+   diceSmall.textContent=diceFaces[diceValue-1];
+   dice.classList.remove("rolling");
+   rolling=false;
+   afterRoll();
+  }
+ },65);
+}
+
+function afterRoll(){
+ const player=players[currentPlayer];
+ setStatus("النرد: "+diceValue+" — اختار قطعة تتحرك");
+ renderTokens();
+
+ const movable=player.tokens.some(t=>canMoveToken(player,t,diceValue));
+
+ if(!movable){
+  if(diceValue===6){
+   diceValue=0;
+   setStatus("مفيش حركة متاحة، لكن لأنك جبت 6 هترمي تاني 🎲");
+   setTimeout(rollDice,700);
+  }else{
+   setStatus("مفيش حركة متاحة — الدور هيتحول...");
+   diceValue=0;
+   setTimeout(()=>{if(!gameOver)nextPlayer()},850);
+  }
+ }
+}
+
+function nextPlayer(){
+ diceValue=0;
+ currentPlayer=(currentPlayer+1)%players.length;
+ renderTokens();
+ updateUI();
+ setStatus("دور "+players[currentPlayer].name+" — ارمِ النرد 🎲");
+}
+
+function updateUI(){
+ const p=players[currentPlayer];
+ if(!p)return;
+
+ turnBox.innerHTML='<span class="turn-dot" style="background:'+COLORS[p.color].color+'"></span>Dور '+p.name+" — "+COLORS[p.color].name;
+
+ scorebar.innerHTML=players.map(player=>`
+  <div class="score" style="border-color:${COLORS[player.color].color}">
+   ${player.name}<b>${player.finished}/4</b>
+  </div>
+ `).join("");
+}
+
+function setStatus(text){statusEl.textContent=text}
+
+function showToast(text){
+ toast.textContent=text;
+ toast.classList.add("show");
+ clearTimeout(showToast.timer);
+ showToast.timer=setTimeout(()=>toast.classList.remove("show"),1600);
+}
+
+function finishGame(player){
+ gameOver=true;
+ document.getElementById("winTitle").textContent="🏆 "+player.name+" فاز!";
+ document.getElementById("winSub").textContent="دخلت كل القطع الأربع للنهاية 🎉";
+ document.getElementById("winOverlay").classList.add("show");
+}
+
+againBtn.onclick=()=>{
+ winOverlay.classList.remove("show");
+ startGame();
+};
+
+homeBtn.onclick=()=>{
+ winOverlay.classList.remove("show");
+ showScreen("homeScreen");
+};
+
+let audioCtx=null;
+let masterGain=null;
+let musicTimer=null;
+let musicPlaying=false;
+let noteIndex=0;
+const musicNotes=[261.63,329.63,392,329.63,293.66,349.23,440,349.23];
+
+function audioInit(){
+ if(!audioCtx){
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  masterGain=audioCtx.createGain();
+  masterGain.gain.value=.12;
+  masterGain.connect(audioCtx.destination);
+ }
+ if(audioCtx.state==="suspended")audioCtx.resume();
+}
+
+function startMusic(){
+ audioInit();
+ if(musicPlaying)return;
+ musicPlaying=true;
+
+ musicTimer=setInterval(()=>{
+  if(!musicPlaying)return;
+
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+
+  osc.type="triangle";
+  osc.frequency.value=musicNotes[noteIndex%musicNotes.length];
+
+  gain.gain.setValueAtTime(.0001,audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.32,audioCtx.currentTime+.025);
+  gain.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+.42);
+
+  osc.connect(gain);
+  gain.connect(masterGain);
+  osc.start();
+  osc.stop(audioCtx.currentTime+.45);
+
+  // Bass layer for a fuller game-music feel
+  const bass=audioCtx.createOscillator();
+  const bassGain=audioCtx.createGain();
+  bass.type="sine";
+  bass.frequency.value=musicNotes[(noteIndex+4)%musicNotes.length]/2;
+  bassGain.gain.setValueAtTime(.0001,audioCtx.currentTime);
+  bassGain.gain.exponentialRampToValueAtTime(.12,audioCtx.currentTime+.02);
+  bassGain.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+.4);
+  bass.connect(bassGain);
+  bassGain.connect(masterGain);
+  bass.start();
+  bass.stop(audioCtx.currentTime+.43);
+
+  noteIndex++;
+ },480);
+
+ musicButton.textContent="🎵";
+}
+
+function stopMusic(){
+ musicPlaying=false;
+ clearInterval(musicTimer);
+ musicTimer=null;
+ musicButton.textContent="🔇";
+}
+
+musicButton.onclick=()=>musicPlaying?stopMusic():startMusic();
+
+window.addEventListener("load",()=>{
+ setTimeout(()=>loadingScreen.style.display="none",1800);
+});
+
+document.addEventListener("pointerdown",()=>{
+ if(!audioCtx)audioInit();
+},{once:true});
+
+playBtn.addEventListener("click",()=>{
+ if(!musicPlaying)startMusic();
+});
+
+document.addEventListener("gesturestart",e=>e.preventDefault());
+</script>
+
+<div class="developer-bar">
+  <div class="developer-avatar">T</div>
+  <div class="developer-info">
+    <div class="developer-label">المطور</div>
+    <div class="developer-name">طارق محمود <span>✦</span></div>
+  </div>
+  <a class="developer-wa" href="https://wa.me/201101538691" target="_blank" rel="noopener">WhatsApp</a>
+</div>
+</body>
+</html>
