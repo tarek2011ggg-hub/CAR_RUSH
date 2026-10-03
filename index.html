@@ -98,18 +98,19 @@ opacity:0;transition:.24s;pointer-events:none;font-weight:800;white-space:nowrap
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 .developer-bar{
-position:absolute;left:18px;right:18px;bottom:8px;z-index:40;height:68px;border-radius:26px;
-display:flex;align-items:center;gap:12px;padding:7px 10px;background:rgba(7,11,21,.9);
+position:absolute;left:18px;right:18px;bottom:8px;z-index:40;height:58px;border-radius:22px;
+display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(7,11,21,.92);
 border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(14px);
-box-shadow:0 12px 40px rgba(0,0,0,.30)
+box-shadow:0 10px 30px rgba(0,0,0,.30)
 }
+.developer-bar.game-hidden{display:none!important}
 .developer-avatar{
-width:52px;height:52px;min-width:52px;border-radius:50%;display:grid;place-items:center;
+width:44px;height:44px;min-width:44px;border-radius:50%;display:grid;place-items:center;
 font-weight:1000;font-size:20px;background:linear-gradient(145deg,#17de77,#1aa7ff);
 box-shadow:0 0 25px rgba(20,210,120,.18)
 }
-.developer-info{flex:1;text-align:right}.developer-label{font-size:11px;color:#8c9bad}.developer-name{font-size:16px;font-weight:1000}.developer-name span{color:#17de77}
-.developer-wa{display:flex;align-items:center;justify-content:center;padding:11px 14px;border-radius:15px;background:#15cf72;color:#fff;text-decoration:none;font-weight:1000;font-size:13px}
+.developer-info{flex:1;text-align:right}.developer-label{font-size:11px;color:#8c9bad}.developer-name{font-size:15px;font-weight:1000}.developer-name span{color:#17de77}
+.developer-wa{display:flex;align-items:center;justify-content:center;padding:9px 12px;border-radius:13px;background:#15cf72;color:#fff;text-decoration:none;font-weight:1000;font-size:13px}
 
 .center-message{
 position:absolute;z-index:14;left:50%;top:50%;transform:translate(-50%,-50%);
@@ -366,11 +367,13 @@ function collectCoin(i){
 function resetGame(){
   game={...game,running:true,paused:false,over:false,t:0,score:0,runCoins:0,roadOffset:0,spawnTimer:.2,coinTimer:.7,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:performance.now(),lane:1,targetLane:1};
   els.center.classList.remove('show');els.hud.classList.remove('hidden');els.controls.classList.remove('hidden');
+  document.getElementById('devbar').classList.add('game-hidden');
   startAudio();
 }
 function endToHome(){
   game.running=false;game.over=false;game.paused=false;
   els.center.classList.remove('show');els.hud.classList.add('hidden');els.controls.classList.add('hidden');
+  document.getElementById('devbar').classList.remove('game-hidden');
   els.home.classList.remove('hidden');updateMenus();
 }
 
@@ -554,6 +557,17 @@ function drawCar(rect,color,player=false,type='car'){
   ctx.closePath();ctx.fill();
 
   ctx.restore();
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  r=Math.max(0,Math.min(r,Math.abs(w)/2,Math.abs(h)/2));
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
 }
 
 function shade(hex,amount){
