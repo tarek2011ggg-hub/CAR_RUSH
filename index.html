@@ -192,8 +192,8 @@ text-align:center;display:none;min-width:260px
 
 <div id="controls" class="controls hidden">
   <div class="control-group">
-    <button id="leftBtn" class="ctl">▶</button>
-    <button id="rightBtn" class="ctl">◀</button>
+    <button id="leftBtn" class="ctl">◀</button>
+    <button id="rightBtn" class="ctl">▶</button>
   </div>
   <div class="control-group">
     <button id="shieldBtn" class="ctl fire" style="background:linear-gradient(135deg,#3d8cff,#36d8ff)">🛡️ حماية</button>
@@ -758,7 +758,7 @@ let audioCtx=null,master=null,musicTimer=null,musicStarted=false;
 function startAudio(){
   if(!audioCtx){
     audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    master=audioCtx.createGain();master.gain.value=.10;master.connect(audioCtx.destination);
+    master=audioCtx.createGain();master.gain.value=.20;master.connect(audioCtx.destination);
   }
   if(audioCtx.state==='suspended')audioCtx.resume();
   if(!musicStarted){
@@ -770,8 +770,16 @@ function startAudio(){
       const t=audioCtx.currentTime;
       const o=audioCtx.createOscillator(),g=audioCtx.createGain();
       o.type='triangle';o.frequency.value=scale[step%scale.length];
-      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.055,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.22);
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.095,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.22);
       o.connect(g);g.connect(master);o.start(t);o.stop(t+.24);
+
+      const h=audioCtx.createOscillator(), hg=audioCtx.createGain();
+      h.type='sine'; h.frequency.value=scale[(step+2)%scale.length]*0.5;
+      hg.gain.setValueAtTime(.0001,t);
+      hg.gain.exponentialRampToValueAtTime(.035,t+.03);
+      hg.gain.exponentialRampToValueAtTime(.0001,t+.23);
+      h.connect(hg);hg.connect(master);h.start(t);h.stop(t+.24);
+
       step++;
     },245);
   }
