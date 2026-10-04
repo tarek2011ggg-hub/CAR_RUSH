@@ -97,20 +97,65 @@ opacity:0;transition:.24s;pointer-events:none;font-weight:800;white-space:nowrap
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.developer-bar{
-position:absolute;left:18px;right:18px;bottom:8px;z-index:40;height:58px;border-radius:22px;
-display:flex;align-items:center;gap:9px;padding:5px 8px;background:rgba(7,11,21,.92);
-border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(14px);
-box-shadow:0 10px 30px rgba(0,0,0,.30)
+.developer-bar-top {
+    position: absolute;
+    z-index: 50;
+    top: max(12px, env(safe-area-inset-top));
+    left: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 14px;
+    background: rgba(7,11,21,.92);
+    border: 1px solid rgba(255,255,255,.13);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.30);
+    pointer-events: auto;
 }
-.developer-bar.game-hidden{display:none!important}
-.developer-avatar{
-width:44px;height:44px;min-width:44px;border-radius:50%;display:grid;place-items:center;
-font-weight:1000;font-size:20px;background:linear-gradient(145deg,#17de77,#1aa7ff);
-box-shadow:0 0 25px rgba(20,210,120,.18)
+.developer-bar-top .developer-avatar {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 1000;
+    font-size: 12px;
+    background: linear-gradient(145deg,#17de77,#1aa7ff);
+    box-shadow: 0 0 15px rgba(20,210,120,.18);
 }
-.developer-info{flex:1;text-align:right}.developer-label{font-size:11px;color:#8c9bad}.developer-name{font-size:15px;font-weight:1000}.developer-name span{color:#17de77}
-.developer-wa{display:flex;align-items:center;justify-content:center;padding:9px 12px;border-radius:13px;background:#15cf72;color:#fff;text-decoration:none;font-weight:1000;font-size:13px}
+.developer-bar-top .developer-info {
+    text-align: left;
+    line-height: 1.1;
+}
+.developer-bar-top .developer-label {
+    font-size: 8px;
+    color: #8c9bad;
+}
+.developer-bar-top .developer-name {
+    font-size: 11px;
+    font-weight: 1000;
+}
+.developer-bar-top .developer-name span {
+    color: #17de77;
+}
+.developer-bar-top .developer-wa {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 7px;
+    border-radius: 8px;
+    background: #15cf72;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 1000;
+    font-size: 9px;
+    margin-left: 2px;
+}
+.developer-bar-top.game-hidden {
+    display: none !important;
+}
 
 .center-message{
 position:absolute;z-index:14;left:50%;top:50%;transform:translate(-50%,-50%);
@@ -128,6 +173,15 @@ text-align:center;display:none;min-width:260px
 <body>
 <div id="app">
 <canvas id="game"></canvas>
+
+<div id="devbarTop" class="developer-bar-top">
+  <div class="developer-avatar">T</div>
+  <div class="developer-info">
+    <div class="developer-label">المطور</div>
+    <div class="developer-name">طارق محمود <span>✦</span></div>
+  </div>
+  <a class="developer-wa" href="https://wa.me/201101538691" target="_blank" rel="noopener">WhatsApp</a>
+</div>
 
 <div id="home" class="screen">
   <div class="panel">
@@ -193,15 +247,14 @@ text-align:center;display:none;min-width:260px
   </div>
 </div>
 
-<!-- ====== الأزرار: تم تبديل أماكن اليمين والشمال (الوظائف زي ما هي) ====== -->
 <div id="controls" class="controls hidden">
   <div class="control-group">
     <button id="shieldBtn" class="ctl fire" style="background:linear-gradient(135deg,#3d8cff,#36d8ff)">🛡️ حماية</button>
     <button id="fireBtn" class="ctl fire">⚡ ليزر</button>
   </div>
   <div class="control-group">
-    <button id="leftBtn" class="ctl">◀</button>
-    <button id="rightBtn" class="ctl">▶</button>
+    <button id="leftBtn" class="ctl">▶</button>
+    <button id="rightBtn" class="ctl">◀</button>
   </div>
 </div>
 
@@ -211,15 +264,6 @@ text-align:center;display:none;min-width:260px
   <p id="centerText">دوس إعادة وجرّب تكسر رقمك.</p>
   <button id="restartBtn" class="primary" style="margin-top:15px">إعادة السباق</button>
   <button id="homeBtn2" class="secondary">الرئيسية</button>
-</div>
-
-<div id="devbar" class="developer-bar">
-  <div class="developer-avatar">T</div>
-  <div class="developer-info">
-    <div class="developer-label">المطور</div>
-    <div class="developer-name">طارق محمود <span>✦</span></div>
-  </div>
-  <a class="developer-wa" href="https://wa.me/201101538691" target="_blank" rel="noopener">WhatsApp</a>
 </div>
 </div>
 
@@ -394,14 +438,14 @@ function resetGame(){
 game={...game,running:true,paused:false,over:false,t:0,score:0,runCoins:0,roadOffset:0,spawnTimer:.2,coinTimer:.7,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:performance.now(),lane:1,targetLane:1,shieldActive:false};
 els.center.classList.remove('show');els.hud.classList.remove('hidden');els.controls.classList.remove('hidden');
 els.pauseBtn.textContent='Ⅱ';
-document.getElementById('devbar').classList.add('game-hidden');
+document.getElementById('devbarTop').classList.add('game-hidden');
 startAudio();
 }
 function endToHome(){
 game.running=false;game.over=false;game.paused=false;
 els.center.classList.remove('show');els.hud.classList.add('hidden');els.controls.classList.add('hidden');
 els.pauseBtn.textContent='Ⅱ';
-document.getElementById('devbar').classList.remove('game-hidden');
+document.getElementById('devbarTop').classList.remove('game-hidden');
 els.home.classList.remove('hidden');updateMenus();
 }
 
@@ -452,7 +496,6 @@ const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#08131e');g.addColor
 ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 
 const r=road();
-// side scenery
 ctx.fillStyle='#0b1720';ctx.fillRect(0,0,r.left,H);ctx.fillRect(r.right,0,W-r.right,H);
 for(let y=-120+game.roadOffset;y<H+120;y+=120){
 ctx.fillStyle='rgba(255,255,255,.035)';
@@ -473,7 +516,6 @@ ctx.beginPath();ctx.moveTo(r.left+laneW*i,0);ctx.lineTo(r.left+laneW*i,H);ctx.st
 }
 ctx.restore();
 
-// road glow at top
 const glow=ctx.createLinearGradient(0,0,0,140);glow.addColorStop(0,'rgba(0,190,255,.13)');glow.addColorStop(1,'transparent');
 ctx.fillStyle=glow;ctx.fillRect(r.left,0,r.width,140);
 }
@@ -483,19 +525,16 @@ ctx.save();
 const {x,y,w,h}=rect;
 ctx.translate(x+w/2,y+h/2);
 
-// Soft road shadow
 ctx.shadowBlur=0;
 ctx.fillStyle='rgba(0,0,0,.38)';
 ctx.beginPath();
 ctx.ellipse(0,h*.40,w*.49,h*.115,0,0,Math.PI*2);
 ctx.fill();
 
-// Car proportions
 const isTruck = type==='truck';
 const isSUV = type==='suv';
 const bw = w*.78, bh = h*.91;
 
-// Tires
 ctx.fillStyle='#090c11';
 const tireW=w*.15, tireH=h*.22;
 for(const tx of [-w*.43,w*.28]){
@@ -507,7 +546,6 @@ ctx.fillStyle='#090c11';
 }
 }
 
-// Main body with metallic gradient
 const grad=ctx.createLinearGradient(-w*.45,0,w*.45,0);
 grad.addColorStop(0,shade(color,-.25));
 grad.addColorStop(.18,color);
@@ -517,12 +555,10 @@ grad.addColorStop(1,shade(color,-.28));
 ctx.fillStyle=grad;
 roundRect(ctx,-bw/2,-bh/2,bw,bh,Math.max(8,w*.15));ctx.fill();
 
-// Bumpers
 ctx.fillStyle='rgba(10,13,18,.72)';
 roundRect(ctx,-bw*.38,-bh*.50,bw*.76,bh*.08,4);ctx.fill();
 roundRect(ctx,-bw*.38,bh*.42,bw*.76,bh*.08,4);ctx.fill();
 
-// Cabin / windshield
 const cabinW=bw*(isTruck?.70:isSUV?.68:.62);
 const cabinH=bh*(isTruck?.48:isSUV?.54:.51);
 const cabinY=isTruck?.02:-.015;
@@ -533,24 +569,20 @@ glass.addColorStop(1,'#263640');
 ctx.fillStyle=glass;
 roundRect(ctx,-cabinW/2,cabinY-cabinH/2,cabinW,cabinH,Math.max(5,w*.09));ctx.fill();
 
-// Windshield split + rear glass
 ctx.fillStyle='rgba(220,245,255,.32)';
 ctx.fillRect(-cabinW*.035,cabinY-cabinH*.45,cabinW*.07,cabinH*.9);
 ctx.fillStyle='rgba(255,255,255,.22)';
 ctx.fillRect(-cabinW*.40,cabinY-cabinH*.35,cabinW*.22,cabinH*.06);
 
-// Side mirrors
 ctx.fillStyle='#111820';
 roundRect(ctx,-bw*.53,-bh*.13,w*.10,w*.13,3);ctx.fill();
 roundRect(ctx,bw*.43,-bh*.13,w*.10,w*.13,3);ctx.fill();
 
-// Hood / trunk highlights
 ctx.fillStyle='rgba(255,255,255,.16)';
 roundRect(ctx,-bw*.29,-bh*.43,bw*.58,bh*.09,4);ctx.fill();
 ctx.fillStyle='rgba(0,0,0,.18)';
 roundRect(ctx,-bw*.29,bh*.32,bw*.58,bh*.07,4);ctx.fill();
 
-// Lights
 ctx.shadowBlur=player?12:8;
 ctx.shadowColor=player?'#a9f0ff':'#ff6a6a';
 ctx.fillStyle=player?'#effcff':'#ff454f';
@@ -562,7 +594,6 @@ ctx.fillStyle=player?'#ff4b4b':'#fff0c8';
 roundRect(ctx,-bw*.31,bh*.43,bw*.20,bh*.055,3);ctx.fill();
 roundRect(ctx,bw*.11,bh*.43,bw*.20,bh*.055,3);ctx.fill();
 
-// Racing stripe only for the player's car
 if(player){
 const stripe=skins[save.skin]?.stripe||'#ffffff';
 ctx.fillStyle=stripe;
@@ -571,11 +602,9 @@ roundRect(ctx,-w*.045,-bh*.44,w*.09,bh*.88,3);ctx.fill();
 ctx.globalAlpha=1;
 }
 
-// Tiny plate
 ctx.fillStyle='#f1f1e8';
 roundRect(ctx,-bw*.18,bh*.445,bw*.36,bh*.035,2);ctx.fill();
 
-// Roof reflection
 ctx.fillStyle='rgba(255,255,255,.11)';
 ctx.beginPath();
 ctx.moveTo(-cabinW*.32,cabinY-cabinH*.38);
@@ -647,7 +676,6 @@ ctx.beginPath();ctx.arc(p.x+p.w/2,p.y+p.h*.42,Math.max(p.w,p.h*.38),0,Math.PI*2)
 drawCar(p,skins[save.skin]?.body||'#21b8ff',true);
 drawParticles();
 
-// speed lines
 if(game.running&&!game.paused){
 const intensity=Math.min(12,3+game.t*.035);
 ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=2;
@@ -746,7 +774,6 @@ if(!game.running||game.over)return;
 game.paused=!game.paused;els.pauseBtn.textContent=game.paused?'▶':'Ⅱ';toast(game.paused?'⏸️ إيقاف مؤقت':'▶️ نكمل!');
 };
 
-// 🏠 زر الرجوع للقائمة الرئيسية من داخل اللعبة
 els.homeBtnTop.onclick=()=>{
 if(game.running||game.over||game.paused){
 endToHome();
@@ -769,71 +796,99 @@ if(e.code==='Space'){e.preventDefault();fire()}
 if(e.key==='p'||e.key==='P')els.pauseBtn.click();
 });
 
-// Audio
+/* ============================================================
+   🔊 AUDIO - صوت أعلى + تشغيل تلقائي على أي لمسة في الشاشة
+   ============================================================ */
 let audioCtx=null,master=null,musicTimer=null,musicStarted=false;
+
 function startAudio(){
-if(!audioCtx){
-audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-master=audioCtx.createGain();
-// 🔊 تم رفع صوت اللعبة
-master.gain.value=.45;
-master.connect(audioCtx.destination);
-}
-if(audioCtx.state==='suspended')audioCtx.resume();
-if(!musicStarted){
-musicStarted=true;
-const scale=[196,220,247,294,330,294,247,220];
-let step=0;
-musicTimer=setInterval(()=>{
-if(!audioCtx||game.paused)return;
-const t=audioCtx.currentTime;
-const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-o.type='triangle';o.frequency.value=scale[step%scale.length];
-g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.095,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.22);
-o.connect(g);g.connect(master);o.start(t);o.stop(t+.24);
+    try{
+        if(!audioCtx){
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if(!AC) return;
+            audioCtx = new AC();
+            master = audioCtx.createGain();
+            // 🔊 الصوت مرفوع لأقصى درجة
+            master.gain.value = 1.0;
+            master.connect(audioCtx.destination);
+        }
+        if(audioCtx.state === 'suspended'){
+            audioCtx.resume();
+        }
+        if(!musicStarted){
+            musicStarted = true;
+            const scale=[196,220,247,294,330,294,247,220];
+            let step=0;
+            musicTimer=setInterval(()=>{
+                if(!audioCtx||game.paused)return;
+                const t=audioCtx.currentTime;
+                const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+                o.type='triangle';o.frequency.value=scale[step%scale.length];
+                g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.095,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.22);
+                o.connect(g);g.connect(master);o.start(t);o.stop(t+.24);
 
-const h=audioCtx.createOscillator(), hg=audioCtx.createGain();
-h.type='sine'; h.frequency.value=scale[(step+2)%scale.length]*0.5;
-hg.gain.setValueAtTime(.0001,t);
-hg.gain.exponentialRampToValueAtTime(.035,t+.03);
-hg.gain.exponentialRampToValueAtTime(.0001,t+.23);
-h.connect(hg);hg.connect(master);h.start(t);h.stop(t+.24);
+                const h=audioCtx.createOscillator(), hg=audioCtx.createGain();
+                h.type='sine'; h.frequency.value=scale[(step+2)%scale.length]*0.5;
+                hg.gain.setValueAtTime(.0001,t);
+                hg.gain.exponentialRampToValueAtTime(.035,t+.03);
+                hg.gain.exponentialRampToValueAtTime(.0001,t+.23);
+                h.connect(hg);hg.connect(master);h.start(t);h.stop(t+.24);
 
-step++;
-},245);
+                step++;
+            },245);
+        }
+    }catch(e){}
+}
 
+function tone(freq,dur,type='sine',gain=.12){
+    if(!audioCtx||!master)return;
+    try{
+        const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.type=type;o.frequency.value=freq;
+        g.gain.setValueAtTime(.0001,t);
+        g.gain.exponentialRampToValueAtTime(gain,t+.01);
+        g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+        o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.03);
+    }catch(e){}
 }
-}
-function tone(freq,dur,type='sine',gain=.08){
-if(!audioCtx||!master)return;
-const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();
-o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.03);
-}
+
 function sfx(kind){
-try{
-startAudio();
-if(kind==='coin'){tone(900,.08,'triangle',.10);setTimeout(()=>tone(1300,.10,'triangle',.09),55)}
-else if(kind==='move')tone(330,.06,'square',.035)
-else if(kind==='laser'){tone(120,.12,'sawtooth',.13);setTimeout(()=>tone(700,.10,'triangle',.08),30)}
-else if(kind==='shield'){tone(420,.11,'sine',.11);setTimeout(()=>tone(670,.12,'sine',.09),80)}
-else if(kind==='crash'){tone(90,.22,'sawtooth',.18);setTimeout(()=>tone(55,.24,'square',.12),80)}
-}catch{}
+    try{
+        startAudio();
+        if(kind==='coin'){tone(900,.08,'triangle',.14);setTimeout(()=>tone(1300,.10,'triangle',.13),55)}
+        else if(kind==='move')tone(330,.06,'square',.05)
+        else if(kind==='laser'){tone(120,.12,'sawtooth',.18);setTimeout(()=>tone(700,.10,'triangle',.12),30)}
+        else if(kind==='shield'){tone(420,.11,'sine',.16);setTimeout(()=>tone(670,.12,'sine',.13),80)}
+        else if(kind==='crash'){tone(90,.22,'sawtooth',.25);setTimeout(()=>tone(55,.24,'square',.18),80)}
+    }catch(e){}
 }
 
-// Start audio on first touch anywhere to satisfy mobile autoplay rules as much as browser allows.
-let audioArmed=false;
-function armAudio(){
-if(audioArmed)return;
-audioArmed=true;
-try{startAudio()}catch{}
+/* ====== تشغيل الصوت التلقائي على أي لمسة في أي مكان في الشاشة ====== */
+function tryStartAudio(){
+    startAudio();
+    if(audioCtx && audioCtx.state === 'suspended'){
+        audioCtx.resume();
+    }
 }
-document.addEventListener('pointerdown',armAudio,{once:true});
-document.addEventListener('keydown',armAudio,{once:true});
+
+// كل الأحداث اللي تفتح الصوت على الموبايل والكمبيوتر
+['touchstart','touchend','pointerdown','pointerup','click','mousedown','keydown'].forEach(ev=>{
+    document.addEventListener(ev, tryStartAudio, {passive:true});
+    window.addEventListener(ev, tryStartAudio, {passive:true});
+});
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) tryStartAudio(); });
+
+// محاولة تشغيل الصوت فورًا عند فتح الصفحة (بعض المتصفحات بتسمح لو المستخدم تفاعل قبل كده)
+tryStartAudio();
+setTimeout(tryStartAudio, 100);
+setTimeout(tryStartAudio, 500);
+setTimeout(tryStartAudio, 1500);
+
+/* ============================================================ */
 
 updateMenus();
 drawRoad();
 })();
 </script>
 </body>
-  </html>
+</html>
