@@ -53,6 +53,7 @@ border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(12px);text-align:cen
 pointer-events:auto;width:46px;height:46px;border-radius:15px;background:rgba(4,10,20,.72);
 border:1px solid rgba(255,255,255,.10);backdrop-filter:blur(12px);font-size:21px
 }
+.topbar-actions{display:flex;gap:8px;pointer-events:auto}
 
 .controls{
 position:absolute;z-index:12;left:12px;right:12px;bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));
@@ -186,10 +187,13 @@ text-align:center;display:none;min-width:260px
     <div class="badge"><small>كوينز</small><strong id="coins">0</strong></div>
     <div class="badge"><small>سرعة</small><strong id="speedLabel">1</strong></div>
   </div>
-  <button id="pauseBtn" class="icon-btn">Ⅱ</button>
+  <div class="topbar-actions">
+    <button id="homeBtnTop" class="icon-btn" title="القائمة الرئيسية">🏠</button>
+    <button id="pauseBtn" class="icon-btn">Ⅱ</button>
+  </div>
 </div>
 
-<!-- ====== الأزرار: المكان اتعكس (الوظائف زي ما هي) ====== -->
+<!-- ====== الأزرار: تم تبديل أماكن اليمين والشمال (الوظائف زي ما هي) ====== -->
 <div id="controls" class="controls hidden">
   <div class="control-group">
     <button id="shieldBtn" class="ctl fire" style="background:linear-gradient(135deg,#3d8cff,#36d8ff)">🛡️ حماية</button>
@@ -232,6 +236,7 @@ hud:document.getElementById('hud'), controls:document.getElementById('controls')
 startBtn:document.getElementById('startBtn'), shopBtn:document.getElementById('shopBtn'),
 howBtn:document.getElementById('howBtn'), closeShop:document.getElementById('closeShop'),
 closeHelp:document.getElementById('closeHelp'), pauseBtn:document.getElementById('pauseBtn'),
+homeBtnTop:document.getElementById('homeBtnTop'),
 leftBtn:document.getElementById('leftBtn'), rightBtn:document.getElementById('rightBtn'),
 fireBtn:document.getElementById('fireBtn'), restartBtn:document.getElementById('restartBtn'),
 homeBtn2:document.getElementById('homeBtn2'), center:document.getElementById('center'),
@@ -388,12 +393,14 @@ game.coins.splice(i,1);game.runCoins++;game.score+=10;burst(game.coins?.x||0,0,'
 function resetGame(){
 game={...game,running:true,paused:false,over:false,t:0,score:0,runCoins:0,roadOffset:0,spawnTimer:.2,coinTimer:.7,obstacles:[],coins:[],particles:[],shots:[],shake:0,last:performance.now(),lane:1,targetLane:1,shieldActive:false};
 els.center.classList.remove('show');els.hud.classList.remove('hidden');els.controls.classList.remove('hidden');
+els.pauseBtn.textContent='Ⅱ';
 document.getElementById('devbar').classList.add('game-hidden');
 startAudio();
 }
 function endToHome(){
 game.running=false;game.over=false;game.paused=false;
 els.center.classList.remove('show');els.hud.classList.add('hidden');els.controls.classList.add('hidden');
+els.pauseBtn.textContent='Ⅱ';
 document.getElementById('devbar').classList.remove('game-hidden');
 els.home.classList.remove('hidden');updateMenus();
 }
@@ -738,6 +745,15 @@ els.pauseBtn.onclick=()=>{
 if(!game.running||game.over)return;
 game.paused=!game.paused;els.pauseBtn.textContent=game.paused?'▶':'Ⅱ';toast(game.paused?'⏸️ إيقاف مؤقت':'▶️ نكمل!');
 };
+
+// 🏠 زر الرجوع للقائمة الرئيسية من داخل اللعبة
+els.homeBtnTop.onclick=()=>{
+if(game.running||game.over||game.paused){
+endToHome();
+toast('🏠 رجعت للقائمة الرئيسية');
+}
+};
+
 function holdButton(btn,dir){
 let timer=null;
 const down=e=>{e.preventDefault();move(dir);timer=setInterval(()=>move(dir),115)};
@@ -759,7 +775,7 @@ function startAudio(){
 if(!audioCtx){
 audioCtx=new (window.AudioContext||window.webkitAudioContext)();
 master=audioCtx.createGain();
-// 🔊 صوت اللعبة أعلى
+// 🔊 تم رفع صوت اللعبة
 master.gain.value=.45;
 master.connect(audioCtx.destination);
 }
