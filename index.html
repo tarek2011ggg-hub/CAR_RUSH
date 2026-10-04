@@ -250,6 +250,29 @@ text-align:center;display:none;min-width:250px;max-width:90vw
   </div>
 </div>
 
+<script>
+(function(){
+  const loader=document.getElementById('carRushLoader');
+  if(!loader)return;
+  const bar=loader.querySelector('.crl-progress b');
+  const percent=loader.querySelector('.crl-percent');
+  const start=performance.now();
+  const duration=2200;
+  function tick(now){
+    const p=Math.min(1,(now-start)/duration);
+    const eased=1-Math.pow(1-p,3);
+    if(bar)bar.style.width=(eased*100).toFixed(1)+'%';
+    if(percent)percent.textContent=Math.round(eased*100)+'%';
+    if(p<1){
+      requestAnimationFrame(tick);
+    }else{
+      setTimeout(function(){loader.classList.add('hide');},180);
+    }
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+
 <div id="app">
 <canvas id="game"></canvas>
 
