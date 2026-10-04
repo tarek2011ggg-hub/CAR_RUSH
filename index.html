@@ -22,7 +22,7 @@ width:min(94vw,520px);padding:22px 18px 20px;border:1px solid rgba(255,255,255,.
 border-radius:28px;background:rgba(4,10,20,.85);backdrop-filter:blur(16px);
 box-shadow:0 18px 70px rgba(0,0,0,.45);max-height:92vh;overflow-y:auto
 }
-.logo{font-size:clamp(34px,10vw,60px);font-weight:1000;letter-spacing:-2px;text-align:center;line-height:.9}
+.logo{font-size:clamp(34px,10vw,60px);font-weight:1000;letter-spacing:-2px;text-align:center;line-height:.9;cursor:pointer;user-select:none}
 .logo span{display:block;font-size:.26em;letter-spacing:4px;opacity:.65;margin-top:10px}
 .subtitle{text-align:center;color:#b9c8d9;margin:14px 0 18px;line-height:1.7;font-size:14px}
 .primary{
@@ -176,6 +176,21 @@ text-align:center;display:none;min-width:250px;max-width:90vw
 .theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .theme-btn{padding:11px;border-radius:14px;font-weight:900;font-size:13px;border:2px solid transparent}
 .theme-btn.active{border-color:#00a6ff;background:rgba(0,170,255,.15)}
+/* ===== Dev Panel ===== */
+#devPanel{
+  position:absolute;z-index:60;left:50%;top:50%;transform:translate(-50%,-50%) scale(.85);
+  padding:24px;border-radius:24px;background:rgba(5,10,18,.98);
+  border:2px solid #ffd43d;text-align:center;opacity:0;pointer-events:none;transition:.3s;
+  min-width:280px;max-width:92vw;box-shadow:0 20px 60px rgba(255,212,61,.35)
+}
+#devPanel.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+#devPanel h2{margin:0 0 6px;font-size:22px;color:#ffd43d}
+#devPanel p{margin:0 0 16px;color:#aab7c8;font-size:12px}
+#devPanel button{
+  width:100%;padding:11px;border-radius:14px;font-weight:900;font-size:14px;
+  background:linear-gradient(135deg,#ffd43d,#ff8b31);color:#1a0d00;margin-bottom:8px
+}
+#devPanel .close-dev{background:rgba(255,255,255,.1);color:#fff}
 @media(min-width:800px){
 .controls{left:28px;right:28px}.ctl{width:74px;height:74px}.fire{width:90px}
 }
@@ -193,14 +208,15 @@ text-align:center;display:none;min-width:250px;max-width:90vw
   </div>
   <a class="developer-wa" href="https://wa.me/201101538691" target="_blank" rel="noopener">WhatsApp</a>
 </div>
+
 <!-- ===== HOME ===== -->
 <div id="home" class="screen">
   <div class="panel">
-    <div class="logo">HIGHWAY<span>RUSH • PRO</span></div>
+    <div class="logo" id="homeLogo">HIGHWAY<span>RUSH • PRO</span></div>
     <div class="subtitle">
-      سوق، تفادى العربيات، واجمع الكوينز! 🔥<br>
-      Power-ups • إنجازات • مهام يومية • ثيمات
-    </div>
+  🏁 اتحدى نفسك على الطريق السريع<br>
+  ⚡ سرعة مجنونة • 💰 كنوز • 🎁 مفاجآت
+</div>
     <button id="startBtn" class="primary">ابدأ السباق 🚗</button>
     <div class="menu-grid">
       <div class="mini-card"><b>🪙 <span id="homeCoins">0</span></b><span>كوينز محفوظة</span></div>
@@ -216,9 +232,8 @@ text-align:center;display:none;min-width:250px;max-width:90vw
     <button id="themesBtn" class="secondary">🎨 الثيمات</button>
     <button id="howBtn" class="secondary">❓ طريقة اللعب</button>
   </div>
-</div>
-
-<!-- ===== SHOP ===== -->
+        </div>
+        <!-- ===== SHOP ===== -->
 <div id="shop" class="screen hidden">
   <div class="panel">
     <div class="logo" style="font-size:38px">المتجر<span>UPGRADE GARAGE</span></div>
@@ -345,6 +360,19 @@ text-align:center;display:none;min-width:250px;max-width:90vw
   </div>
 </div>
 
+<!-- ===== DEV PANEL ===== -->
+<div id="devPanel">
+  <h2>🔓 وضع المطور</h2>
+  <p>طارق محمود ✦</p>
+  <button id="devInfCoins">💰 كوينز لا نهائية</button>
+  <button id="devInfShots">🔫 طلقات لا نهائية</button>
+  <button id="devInfShield">🛡️ حماية لا نهائية</button>
+  <button id="devMaxSpeed">⚡ سرعة ماكس</button>
+  <button id="devUnlockAll">🎨 افتح كل الأشكال</button>
+  <button id="devReset" style="background:linear-gradient(135deg,#ff486a,#b51f32);color:#fff">🗑️ امسح كل البيانات</button>
+  <button class="close-dev" id="devClose">إغلاق</button>
+</div>
+
 <!-- ===== Achievement popup ===== -->
 <div id="achPopup" class="achievement-popup">
   <span class="icon">🎖️</span>
@@ -427,7 +455,15 @@ continueScreen:document.getElementById('continueScreen'),
 continueCost:document.getElementById('continueCost'),
 continueBalance:document.getElementById('continueBalance'),
 continueBtn:document.getElementById('continueBtn'),
-giveUpBtn:document.getElementById('giveUpBtn')
+giveUpBtn:document.getElementById('giveUpBtn'),
+devPanel:document.getElementById('devPanel'),
+devInfCoins:document.getElementById('devInfCoins'),
+devInfShots:document.getElementById('devInfShots'),
+devInfShield:document.getElementById('devInfShield'),
+devMaxSpeed:document.getElementById('devMaxSpeed'),
+devUnlockAll:document.getElementById('devUnlockAll'),
+devReset:document.getElementById('devReset'),
+devClose:document.getElementById('devClose')
 };
     let W=0,H=0,dpr=1;
 function resize(){
@@ -639,7 +675,6 @@ function hit(){
     toast(`❤️ ${game.lives} حياة متبقية!`);
     return;
   }
-  // 💔 خلصت الحياة — شاشة Continue
   els.continueBalance.textContent=save.coins;
   if(save.coins>=25){
     els.continueBtn.disabled=false;
@@ -1332,6 +1367,86 @@ els.giveUpBtn.onclick=()=>{
   els.centerText.innerHTML=`السكور: <b>${game.score}</b> • كوينز: <b>${game.runCoins}</b><br>أعلى سكور: <b>${save.best}</b>`;
   els.center.classList.add('show');
 };
+
+/* ============ DEV PANEL ============ */
+let devTapCount=0, devTapTimer=null;
+const logoEl=document.getElementById('homeLogo');
+if(logoEl){
+  logoEl.addEventListener('click',()=>{
+    devTapCount++;
+    clearTimeout(devTapTimer);
+    devTapTimer=setTimeout(()=>{devTapCount=0},800);
+    if(devTapCount>=5){
+      devTapCount=0;
+      els.devPanel.classList.add('show');
+      sfx('achievement');
+      toast('🔓 وضع المطور مفتوح!');
+    }
+  });
+}
+
+window.addEventListener('keydown',(e)=>{
+  if((e.key==='D'||e.key==='d') && (e.shiftKey||e.ctrlKey)){
+    els.devPanel.classList.add('show');
+    sfx('achievement');
+  }
+});
+
+let devInf=JSON.parse(localStorage.getItem('highway_dev_inf')||'{"coins":false,"shots":false,"shield":false}');
+function saveDevInf(){localStorage.setItem('highway_dev_inf',JSON.stringify(devInf))}
+
+els.devInfCoins.onclick=()=>{
+  devInf.coins=!devInf.coins;saveDevInf();
+  els.devInfCoins.textContent=devInf.coins?'💰 كوينز لا نهائية ✅':'💰 كوينز لا نهائية';
+  if(devInf.coins){save.coins=99999999;persist();toast('💰 كوينز لا نهائية مفعلة!');sfx('coin')}
+  else toast('💰 اتقفلت');
+};
+
+els.devInfShots.onclick=()=>{
+  devInf.shots=!devInf.shots;saveDevInf();
+  els.devInfShots.textContent=devInf.shots?'🔫 طلقات لا نهائية ✅':'🔫 طلقات لا نهائية';
+  if(devInf.shots){save.shots=9999;persist();toast('🔫 طلقات لا نهائية!');sfx('laser')}
+  else toast('🔫 اتقفلت');
+};
+
+els.devInfShield.onclick=()=>{
+  devInf.shield=!devInf.shield;saveDevInf();
+  els.devInfShield.textContent=devInf.shield?'🛡️ حماية لا نهائية ✅':'🛡️ حماية لا نهائية';
+  if(devInf.shield){save.shield=99;persist();toast('🛡️ حماية لا نهائية!');sfx('shield')}
+  else toast('🛡️ اتقفلت');
+};
+
+els.devMaxSpeed.onclick=()=>{
+  save.speed=8;persist();
+  toast('⚡ السرعة وصلت للماكس!');
+  sfx('powerup');
+};
+
+els.devUnlockAll.onclick=()=>{
+  ownedSkins=[0,1,2,3];saveSkins();
+  toast('🎨 كل الأشكال اتفتحت!');
+  sfx('achievement');
+};
+
+els.devReset.onclick=()=>{
+  if(confirm('متأكد إنك عايز تمسح كل البيانات؟')){
+    localStorage.removeItem(STORAGE);
+    localStorage.removeItem('highway_rush_skins_v1');
+    localStorage.removeItem('highway_dev_inf');
+    location.reload();
+  }
+};
+
+els.devClose.onclick=()=>{
+  els.devPanel.classList.remove('show');
+};
+
+function applyDevInf(){
+  if(devInf.coins){save.coins=99999999;els.devInfCoins.textContent='💰 كوينز لا نهائية ✅'}
+  if(devInf.shots){save.shots=9999;els.devInfShots.textContent='🔫 طلقات لا نهائية ✅'}
+  if(devInf.shield){save.shield=99;els.devInfShield.textContent='🛡️ حماية لا نهائية ✅'}
+}
+applyDevInf();
 
 /* ============ EVENTS ============ */
 els.startBtn.onclick=()=>{els.home.classList.add('hidden');resetGame()};
