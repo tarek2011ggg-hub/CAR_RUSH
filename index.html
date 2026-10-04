@@ -615,7 +615,8 @@ let game={
   boostTimer:0,
   slowTimer:0,
   multiplierTimer:0,
-  invincibleTimer:0
+  invincibleTimer:0,
+  laserBeam:null
 };
 
 /* ============ HELPERS ============ */
@@ -675,9 +676,18 @@ function fire(){
       if(dy<bd){bd=dy;best=o}
     }
   }
+  const beamEndY = best ? best.y + best.h/2 : 8;
+  game.laserBeam={
+    x:p.x+p.w/2,
+    y:p.y,
+    endX:best ? best.x+best.w/2 : p.x+p.w/2,
+    endY:beamEndY,
+    life:.28,
+    max:.28
+  };
   if(best){
     best.dead=true;
-    burst(best.x+best.w/2,best.y+best.h/2,'laser',14);
+    burst(best.x+best.w/2,best.y+best.h/2,'laser',22);
     game.score+=25;toast('💥 اتكسرت العقبة +25');
   } else toast('⚡ الليزر طلع فاضي');
 }
@@ -807,6 +817,7 @@ function update(dt){
   for(const c of game.coins){c.y+=world*dtt*0.85;c.spin+=dtt*7;c.pulse+=dtt*4}
   for(const p of game.powerups){p.y+=world*dtt; p.pulse+=dtt*5}
   for(const s of game.particles){s.x+=s.vx*dtt;s.y+=s.vy*dtt;s.vy+=220*dtt;s.life-=dtt}
+  if(game.laserBeam){game.laserBeam.life-=dt;if(game.laserBeam.life<=0)game.laserBeam=null}
   for(const s of game.smoke){s.x+=s.vx*dtt;s.y+=s.vy*dtt;s.vy+=10*dtt;s.life-=dtt;s.size+=dtt*20}
   for(const s of game.stars){s.y+=s.speed*dtt; if(s.y>H){s.y=-5;s.x=Math.random()*W}}
   for(const r of game.rain){r.y+=r.speed*dtt; r.x+=r.vx*dtt; if(r.y>H){r.y=-10;r.x=Math.random()*W}}
@@ -1204,6 +1215,28 @@ function draw(){
     ctx.restore();
   }
   drawCar(p,skins[save.skin]?.body||'#21b8ff',true);
+
+  /* ===== VISIBLE LASER BEAM ===== */
+  if(game.laserBeam){
+    const b=game.laserBeam, a=Math.max(0,b.life/b.max);
+    ctx.save();
+    ctx.globalAlpha=a;
+    ctx.lineCap='round';
+    ctx.shadowBlur=24;
+    ctx.shadowColor='#16dfff';
+    ctx.strokeStyle='rgba(0,225,255,.35)';
+    ctx.lineWidth=14;
+    ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.endX,b.endY);ctx.stroke();
+    ctx.strokeStyle='#bffcff';
+    ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.endX,b.endY);ctx.stroke();
+    ctx.strokeStyle='#ffffff';
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.endX,b.endY);ctx.stroke();
+    ctx.fillStyle='#dfffff';ctx.shadowBlur=28;ctx.shadowColor='#00eaff';
+    ctx.beginPath();ctx.arc(b.x,b.y,7,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
   drawSmoke();
   drawParticles();
 
